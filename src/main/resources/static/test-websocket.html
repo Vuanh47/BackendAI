@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test - Group & Private</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            background: #f5f5f5;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        input, button, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input {
+            flex: 1;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+            min-width: 100px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background: #fafafa;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .log-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            word-wrap: break-word;
+        }
+        .log-item.info {
+            color: #0066cc;
+        }
+        .log-item.success {
+            color: #00aa00;
+        }
+        .log-item.error {
+            color: #cc0000;
+        }
+        .log-item.received {
+            color: #ff6600;
+            background: #fffef0;
+            padding: 5px;
+            border-radius: 2px;
+            margin: 2px 0;
+        }
+        .log-item.sent {
+            color: #0066cc;
+            background: #f0f8ff;
+            padding: 5px;
+            border-radius: 2px;
+            margin: 2px 0;
+        }
+        h3 {
+            margin: 15px 0 10px 0;
+            color: #333;
+        }
+        .instructions {
+            background: #e7f3ff;
+            padding: 10px;
+            border-left: 4px solid #0066cc;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- GROUP CHAT -->
+    <div class="panel">
+        <h2>👥 Group Chat</h2>
+
+        <div id="groupStatus" class="status disconnected">⚫ Disconnected</div>
+
+        <div class="input-group">
+            <input type="text" id="groupUsername" placeholder="Your username" value="user1">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="groupRoomId" placeholder="Room ID" value="room123">
+            <button id="groupConnectBtn" onclick="connectGroup()">Join Group</button>
+            <button id="groupDisconnectBtn" onclick="disconnectGroup()" disabled>Leave</button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="groupMessageInput" placeholder="Type message..." disabled>
+            <button id="groupSendBtn" onclick="sendGroupMessage()" disabled>Send</button>
+        </div>
+
+        <h3>📨 Group Messages:</h3>
+        <div id="groupLog" class="log"></div>
+    </div>
+
+    <!-- PRIVATE CHAT -->
+    <div class="panel">
+        <h2>💬 Private Chat (1-1)</h2>
+
+        <div id="privateStatus" class="status disconnected">⚫ Disconnected</div>
+
+        <div class="input-group">
+            <input type="text" id="privateUsername" placeholder="Your username" value="user2">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="privateReceiver" placeholder="Receiver username" value="user1">
+            <button id="privateConnectBtn" onclick="connectPrivate()">Connect</button>
+            <button id="privateDisconnectBtn" onclick="disconnectPrivate()" disabled>Disconnect</button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="privateMessageInput" placeholder="Type message..." disabled>
+            <button id="privateSendBtn" onclick="sendPrivateMessage()" disabled>Send</button>
+        </div>
+
+        <h3>📨 Private Messages:</h3>
+        <div id="privateLog" class="log"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    // ============ GROUP CHAT ============
+    let groupStompClient = null;
+    let groupUsername = 'user1';
+    let groupRoomId = 'room123';
+
+    function logGroup(message, type = 'info') {
+        const logDiv = document.getElementById('groupLog');
+        const item = document.createElement('div');
+        item.className = 'log-item ' + type;
+        const time = new Date().toLocaleTimeString();
+        item.textContent = `[${time}] ${message}`;
+        logDiv.appendChild(item);
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function updateGroupStatus(connected) {
+        const status = document.getElementById('groupStatus');
+        const connectBtn = document.getElementById('groupConnectBtn');
+        const disconnectBtn = document.getElementById('groupDisconnectBtn');
+        const messageInput = document.getElementById('groupMessageInput');
+        const sendBtn = document.getElementById('groupSendBtn');
+
+        if (connected) {
+            status.textContent = '🟢 Connected to Group';
+            status.className = 'status connected';
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+        } else {
+            status.textContent = '🔴 Disconnected';
+            status.className = 'status disconnected';
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+        }
+    }
+
+    function connectGroup() {
+        groupUsername = document.getElementById('groupUsername').value || 'user1';
+        groupRoomId = document.getElementById('groupRoomId').value || 'room123';
+
+        logGroup(`🔌 Connecting to group room ${groupRoomId}...`, 'info');
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        groupStompClient = Stomp.over(socket);
+
+        groupStompClient.connect({},
+            (frame) => {
+                logGroup('✅ Connected to Group Chat!', 'success');
+                updateGroupStatus(true);
+
+                groupStompClient.subscribe(`/topic/chat/${groupRoomId}`, (message) => {
+                    const msg = JSON.parse(message.body);
+                    logGroup(`👤 [${msg.senderUsername}]: ${msg.content}`, 'received');
+                });
+
+                groupStompClient.send(`/app/chat.addUser/${groupRoomId}`, {}, JSON.stringify({
+                    senderUsername: groupUsername,
+                    content: groupUsername + ' joined the chat',
+                    type: 'JOIN'
+                }));
+                logGroup(`✅ User ${groupUsername} joined group room ${groupRoomId}`, 'success');
+            },
+            (error) => {
+                logGroup(`❌ Connection Error: ${error}`, 'error');
+                updateGroupStatus(false);
+            }
+        );
+    }
+
+    function disconnectGroup() {
+        if (groupStompClient != null) {
+            groupStompClient.disconnect(() => {
+                logGroup('❌ Disconnected from Group', 'info');
+                updateGroupStatus(false);
+            });
+        }
+    }
+
+    function sendGroupMessage() {
+        const messageInput = document.getElementById('groupMessageInput');
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        if (groupStompClient && groupStompClient.connected) {
+            groupStompClient.send(`/app/chat.sendMessage/${groupRoomId}`, {}, JSON.stringify({
+                senderUsername: groupUsername,
+                content: message,
+                type: 'CHAT'
+            }));
+            logGroup(`📤 You: ${message}`, 'sent');
+            messageInput.value = '';
+        }
+    }
+
+    // ============ PRIVATE CHAT ============
+    let privateStompClient = null;
+    let privateUsername = 'user2';
+    let privateReceiver = 'user1';
+
+    function logPrivate(message, type = 'info') {
+        const logDiv = document.getElementById('privateLog');
+        const item = document.createElement('div');
+        item.className = 'log-item ' + type;
+        const time = new Date().toLocaleTimeString();
+        item.textContent = `[${time}] ${message}`;
+        logDiv.appendChild(item);
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function updatePrivateStatus(connected) {
+        const status = document.getElementById('privateStatus');
+        const connectBtn = document.getElementById('privateConnectBtn');
+        const disconnectBtn = document.getElementById('privateDisconnectBtn');
+        const messageInput = document.getElementById('privateMessageInput');
+        const sendBtn = document.getElementById('privateSendBtn');
+
+        if (connected) {
+            status.textContent = '🟢 Connected to Private Chat';
+            status.className = 'status connected';
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+        } else {
+            status.textContent = '🔴 Disconnected';
+            status.className = 'status disconnected';
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+        }
+    }
+
+    function connectPrivate() {
+        privateUsername = document.getElementById('privateUsername').value || 'user2';
+        privateReceiver = document.getElementById('privateReceiver').value || 'user1';
+
+        logPrivate(`🔌 Connecting to private chat with ${privateReceiver}...`, 'info');
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        privateStompClient = Stomp.over(socket);
+
+        privateStompClient.connect({},
+            (frame) => {
+                logPrivate('✅ Connected to Private Chat!', 'success');
+                updatePrivateStatus(true);
+
+                // Subscribe to private queue
+                privateStompClient.subscribe(`/user/${privateUsername}/queue/private`, (message) => {
+                    const msg = JSON.parse(message.body);
+                    logPrivate(`💬 [${msg.senderUsername}]: ${msg.content}`, 'received');
+                });
+
+                logPrivate(`✅ Ready to chat with ${privateReceiver}`, 'success');
+            },
+            (error) => {
+                logPrivate(`❌ Connection Error: ${error}`, 'error');
+                updatePrivateStatus(false);
+            }
+        );
+    }
+
+    function disconnectPrivate() {
+        if (privateStompClient != null) {
+            privateStompClient.disconnect(() => {
+                logPrivate('❌ Disconnected from Private Chat', 'info');
+                updatePrivateStatus(false);
+            });
+        }
+    }
+
+    function sendPrivateMessage() {
+        const messageInput = document.getElementById('privateMessageInput');
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        if (privateStompClient && privateStompClient.connected) {
+            privateStompClient.send(`/app/chat.privateMessage/${privateReceiver}`, {}, JSON.stringify({
+                senderUsername: privateUsername,
+                receiverUsername: privateReceiver,
+                content: message,
+                type: 'CHAT'
+            }));
+            logPrivate(`📤 You to ${privateReceiver}: ${message}`, 'sent');
+            messageInput.value = '';
+        } else {
+            logPrivate('❌ Not connected!', 'error');
+        }
+    }
+
+    // Allow sending with Enter key
+    document.getElementById('groupMessageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendGroupMessage();
+    });
+
+    document.getElementById('privateMessageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendPrivateMessage();
+    });
+
+    logGroup('🎯 Ready for group chat!', 'info');
+    logPrivate('🎯 Ready for private chat!', 'info');
+</script>
+</body>
+</html>
