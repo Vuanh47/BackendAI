@@ -38,6 +38,7 @@ public class DoctorService {
      DoctorRepository doctorRepository;
      DoctorMapper mapper;
      PasswordEncoder passwordEncoder;
+     PatientRepository patientRepository;
 
     public DoctorResponse registerDoctor(DoctorRegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -69,5 +70,7 @@ public class DoctorService {
                 .map(doctor -> mapper.toDoctorResponse(doctor, doctor.getUser()))
                 .toList();
     }
+
+
 
 }

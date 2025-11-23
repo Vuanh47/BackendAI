@@ -25,7 +25,7 @@ public class MessageMapper {
 
     public MessageResponse toResponse(Message entity) {
         return MessageResponse.builder()
-                .messageID(entity.getMessageID())
+                .messageID(entity.getId())
                 .senderUsername(entity.getSender() != null ? entity.getSender().getUsername() : null)
                 .receiverUsername(entity.getReceiver() != null ? entity.getReceiver().getUsername() : null)
                 .content(entity.getContent())

@@ -17,7 +17,7 @@ public class MedicalEncounter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer encounterID;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PatientID", nullable = false)
@@ -51,5 +51,5 @@ public class MedicalEncounter {
     @Lob
     private String aISummary;
 
-
+    private String BHYT;
 }

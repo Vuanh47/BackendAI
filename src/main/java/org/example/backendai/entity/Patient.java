@@ -4,6 +4,7 @@ import lombok.*;
 import org.example.backendai.constant.UserRole;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 
@@ -17,7 +18,7 @@ import java.util.Set;
 public class Patient {
 
     @Id
-    private Integer PatientID;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -33,5 +34,5 @@ public class Patient {
     private Doctor managingDoctor;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    private Set<MedicalEncounter> medicalEncounters;
+    private List<MedicalEncounter> medicalEncounters;
 }

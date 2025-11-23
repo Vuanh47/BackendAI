@@ -50,7 +50,7 @@ public class MessageService {
         Message message = messageMapper.toEntity(request, sender, receiver);
         Message savedMessage = messageRepository.save(message);
 
-        log.info("Message saved with ID: {}", savedMessage.getMessageID());
+        log.info("Message saved with ID: {}", savedMessage.getId());
         return messageMapper.toResponse(savedMessage);
     }
 

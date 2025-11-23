@@ -17,3 +17,7 @@ logging:
     port: 8080
     servlet:
       context-path: /api
+
+  servlet:
+    multipart:
+      enabled: true

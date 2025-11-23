@@ -26,4 +26,5 @@ public class MedicalEncounterResponse {
     private String labRecommendations; // Đề xuất xét nghiệm
     private String treatmentPlan; // Kế hoạch điều trị
     private String aiSummary; // Ghi chú/tóm tắt từ AI
+    private String BHYT;
 }

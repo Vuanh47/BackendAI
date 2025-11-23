@@ -34,7 +34,8 @@ public class AIService {
             .readTimeout(120, TimeUnit.SECONDS)  // THỜI GIAN CHỜ ĐỌC (QUAN TRỌNG NHẤT)
             .build();
 
-    String API_URL = "https://unsanitized-alesia-culinarily.ngrok-free.dev/analyze";
+    String API_URL = "https://court-bugs-makes-speeds.trycloudflare.com/analyze";
+
     ObjectMapper mapper = new ObjectMapper();
 
     public AIResponse analyze(MultipartFile file) throws IOException {
@@ -45,21 +46,43 @@ public class AIService {
                                 MediaType.parse(file.getContentType() != null ? file.getContentType() : "image/jpeg")))
                 .build();
 
-              Request request = new Request.Builder()
+        Request request = new Request.Builder()
                 .url(API_URL)
                 .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful() && response.body() != null) {
-                String json = response.body().string();
-//                MedicalEncounter data =  mapper.readValue(json, MedicalEncounter.class);
-////                repository.save(data);
-//                return medicalEncounterMapper.toMedicalEncounterResponse(data);
-                return mapper.readValue(json, AIResponse.class);
-            } else {
-                throw new IOException("Lỗi khi gọi API FastAPI: " + response.code());
+            // Đọc body một lần duy nhất, bất kể request thành công hay không
+            // (Quan trọng: response.body().string() chỉ có thể được gọi MỘT LẦN)
+            String jsonBody = "";
+            if (response.body() != null) {
+                jsonBody = response.body().string();
             }
+
+            if (response.isSuccessful()) {
+                // Log lại body khi thành công để kiểm tra
+                log.info("API FastAPI trả về thành công. Body: {}", jsonBody);
+
+                // Nếu body rỗng thì cũng là lỗi
+                if (jsonBody.isEmpty()) {
+                    throw new IOException("API FastAPI trả về body rỗng.");
+                }
+
+                return mapper.readValue(jsonBody, AIResponse.class);
+            } else {
+                // Đây là phần quan trọng nhất: Log lại LỖI mà API bên ngoài trả về
+                log.error("Lỗi khi gọi API FastAPI. Code: {}", response.code());
+                log.error("Nội dung lỗi từ FastAPI: {}", jsonBody); // <-- Đây là mấu chốt
+
+                throw new IOException("Lỗi khi gọi API FastAPI: " + response.code() + ", Body: " + jsonBody);
+            }
+
+            // --- KẾT THÚC PHẦN SỬA ĐỔI ---
+
+        } catch (Exception e) {
+            // Bắt tất cả các lỗi khác (ví dụ: timeout, không kết nối được)
+            log.error("Lỗi nghiêm trọng khi gọi AIService.analyze: ", e);
+            throw new IOException("Lỗi khi xử lý file: " + e.getMessage(), e);
         }
     }
 }

@@ -17,7 +17,7 @@ public class MessageClassification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer ClassificationID;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MessageID", nullable = false)

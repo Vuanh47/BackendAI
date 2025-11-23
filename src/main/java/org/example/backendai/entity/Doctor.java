@@ -17,7 +17,7 @@ import java.util.Set;
 public class Doctor {
 
     @Id
-    private Integer DoctorID;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -25,10 +25,10 @@ public class Doctor {
     private User user;
 
     @Column(length = 255)
-    private String Specialty;
+    private String specialty;
 
     @Column(length = 255)
-    private String Department;
+    private String department;
 
     @OneToMany(mappedBy = "managingDoctor")
     private Set<Patient> patients;

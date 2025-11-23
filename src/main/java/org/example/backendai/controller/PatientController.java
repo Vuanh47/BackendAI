@@ -30,5 +30,10 @@ public class PatientController {
         return ApiResponseUtil.success(data, SuccessCode.PATIENT_GET);
     }
 
-
+    @GetMapping("/{doctorId}/patients")
+    public ResponseEntity<List<PatientResponse>> getAllPatientsByDoctor(
+            @PathVariable Integer doctorId) {
+        List<PatientResponse> data = patientService.getAllPatientsByDoctorId(doctorId);
+        return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
+    }
 }

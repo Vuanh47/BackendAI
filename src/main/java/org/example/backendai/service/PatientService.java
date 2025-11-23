@@ -76,4 +76,13 @@ public class PatientService {
                         mapper.toPatientResponse(patient, patient.getUser())).toList();
 
     }
+
+    public List<PatientResponse> getAllPatientsByDoctorId(Integer doctorId) {
+        List<Patient> patients = repository.findAllByManagingDoctor_Id(doctorId);
+        log.info(doctorId+"");
+        log.info(patients.toString());
+        return patients.stream()
+                .map(patient ->
+                        mapper.toPatientResponse(patient, patient.getUser())).toList();
+    }
 }
