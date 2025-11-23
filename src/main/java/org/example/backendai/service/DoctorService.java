@@ -8,16 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.constant.UserRole;
 import org.example.backendai.dto.request.DoctorRegisterRequest;
-import org.example.backendai.dto.request.PatientRegisterRequest;
 import org.example.backendai.dto.response.DoctorResponse;
-import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.Doctor;
-import org.example.backendai.entity.Patient;
 import org.example.backendai.entity.User;
 import org.example.backendai.exception.AppException;
 import org.example.backendai.mapper.DoctorMapper;
-import org.example.backendai.mapper.PatientMapper;
-import org.example.backendai.mapper.UserMapper;
 import org.example.backendai.repository.DoctorRepository;
 import org.example.backendai.repository.PatientRepository;
 import org.example.backendai.repository.UserRepository;
@@ -71,6 +66,11 @@ public class DoctorService {
                 .toList();
     }
 
+    public DoctorResponse getDoctorById(Integer id) {
+         Doctor doctor = doctorRepository.findById(Long.valueOf(id)).orElseThrow(() ->
+                new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
 
+        return mapper.toDoctorResponse(doctor, doctor.getUser());
+    }
 
 }

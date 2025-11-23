@@ -1,22 +1,54 @@
 package org.example.backendai.mapper;
 
-import org.example.backendai.dto.request.DoctorRegisterRequest;
-import org.example.backendai.dto.request.PatientRegisterRequest;
 import org.example.backendai.dto.response.DoctorResponse;
-import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.Doctor;
-import org.example.backendai.entity.Patient;
-import org.example.backendai.entity.User;
+import org.example.backendai.dto.request.DoctorRegisterRequest; // Giả định có request này
+import org.example.backendai.entity.User; // Giả định cần ánh xạ User
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.Mapping; // Thêm import này
+import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+
+@Mapper(componentModel = "spring")
 public interface DoctorMapper {
-    @Mapping(source = "request", target = "user") // gọi sang UserMapper
-    Doctor toDoctor(DoctorRegisterRequest request);
-    User toUser(DoctorRegisterRequest request);
+
+    // Ánh xạ Doctor và User sang DoctorResponse
+    @Mappings({
+            // BẮT BUỘC: Chỉ định nguồn cho thuộc tính "id" của DoctorResponse
+            @Mapping(source = "doctor.user.id", target = "id"),
+
+            // Ánh xạ các thuộc tính từ User sang DoctorResponse
+            @Mapping(source = "doctor.user.fullName", target = "fullName"),
+            @Mapping(source = "doctor.user.phone", target = "phone"),
+            @Mapping(source = "doctor.user.dateOfBirth", target = "dateOfBirth"),
+            @Mapping(source = "doctor.user.gender", target = "gender"),
+
+            // Ánh xạ các thuộc tính từ Doctor sang DoctorResponse
+            @Mapping(source = "doctor.specialty", target = "specialty"),
+            @Mapping(source = "doctor.department", target = "department")
+    })
+    DoctorResponse toDoctorResponse(Doctor doctor);
+
+    // Lưu ý: Nếu phương thức của bạn có 2 đối số (Doctor và User)
+    // DoctorResponse toDoctorResponse(Doctor doctor, User user);
+    // Thì bạn sẽ phải chỉnh sửa source tương ứng (ví dụ: source = "user.id" thay vì "doctor.user.id").
+    // Tuy nhiên, dựa trên Service của bạn, phương thức có thể trông như sau:
+    @Mappings({
+            @Mapping(source = "user.id", target = "id"),
+            @Mapping(source = "user.fullName", target = "fullName"),
+            @Mapping(source = "user.phone", target = "phone"),
+            @Mapping(source = "user.dateOfBirth", target = "dateOfBirth"),
+            @Mapping(source = "user.gender", target = "gender"),
+            @Mapping(source = "doctor.specialty", target = "specialty"),
+            @Mapping(source = "doctor.department", target = "department")
+    })
     DoctorResponse toDoctorResponse(Doctor doctor, User user);
-    DoctorResponse toDoctorResponseSimple(Doctor doctor);
 
+    // Hoàn thành các phương thức khác nếu cần (ví dụ: ánh xạ từ Request)
+
+    // Ánh xạ DoctorRegisterRequest sang User Entity
+    User toUser(DoctorRegisterRequest request);
+
+    // Ánh xạ DoctorRegisterRequest sang Doctor Entity
+    Doctor toDoctor(DoctorRegisterRequest request);
 }
-

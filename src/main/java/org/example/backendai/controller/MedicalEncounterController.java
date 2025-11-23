@@ -34,6 +34,7 @@ public class MedicalEncounterController {
         return ApiResponseUtil.success(data, SuccessCode.MEDICAL_ENCOUNTER_LISTED);
     }
 
+
 //    @GetMapping("/{doctorId}/patients")
 //    public ResponseEntity<List<PatientResponse>> getAllPatientsByDoctor(
 //            @PathVariable Integer doctorId) {

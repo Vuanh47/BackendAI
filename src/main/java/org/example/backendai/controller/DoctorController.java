@@ -30,6 +30,14 @@ public class DoctorController {
         return ApiResponseUtil.success(data, SuccessCode.DOCTOR_LISTED);
     }
 
+    @GetMapping("/{doctorId}")
+    public ResponseEntity<DoctorResponse> getDoctorID(
+            @PathVariable Integer doctorId) {
+        DoctorResponse data = service.getDoctorById(doctorId);
+        return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
+    }
+
+
 
 
 }
