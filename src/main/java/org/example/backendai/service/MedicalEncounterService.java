@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.dto.request.MedicalEncounterRequest;
 import org.example.backendai.dto.response.MedicalEncounterResponse;
+import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.MedicalEncounter;
 import org.example.backendai.entity.Patient;
 import org.example.backendai.exception.AppException;
@@ -36,10 +37,10 @@ public class MedicalEncounterService {
         Patient patient = patientRepository.findById(request.getPatientId().longValue())
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
 
-        log.info(request.toString());
+        log.info(request.toString() + "ok");
         MedicalEncounter encounter = mapper.toMedicalEncounter(request);
         encounter.setPatient(patient);
-        encounter.setAISummary(request.getAiSummary());
+        encounter.setAiSummary(request.getAiSummary());
         repository.save(encounter);
 
         return mapper.toMedicalEncounterResponse(encounter);
@@ -50,6 +51,7 @@ public class MedicalEncounterService {
         return encounters.stream()
                 .map(mapper::toMedicalEncounterResponse).toList();
     }
+
 
 
 }

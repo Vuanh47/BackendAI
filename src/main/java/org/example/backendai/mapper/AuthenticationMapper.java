@@ -12,7 +12,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface AuthenticationMapper {
 
-
+    @Mapping(source = "user.id", target = "id")
     @Mapping(target = "role", expression = "java(user.getRole() != null ? user.getRole().name() : null)")
     @Mapping(target = "success", constant = "true")
     AuthenticationResponse toAuthenticationResponse(User user);

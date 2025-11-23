@@ -22,7 +22,7 @@ public class AIController {
 
      AIService service;
 
-    @PostMapping(value = "/analyze")
+    @PostMapping(value = "/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AIResponse> analyze(@RequestParam("file") MultipartFile file) throws Exception {
         log.info("Received request to analyze file: {}", file.getOriginalFilename());
         AIResponse data = service.analyze(file);

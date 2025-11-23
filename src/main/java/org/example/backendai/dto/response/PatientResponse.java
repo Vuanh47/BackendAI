@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class PatientResponse {
      String gender;
      String relativePhoneNumber;
      String managingDoctorName;
+    List<MedicalEncounterResponse> medicalEncounters;
 }

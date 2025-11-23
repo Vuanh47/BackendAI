@@ -49,7 +49,7 @@ public class MedicalEncounter {
     private String treatmentPlan;
 
     @Lob
-    private String aISummary;
+    private String aiSummary; // <-- Đã sửa thành chữ thường hoàn toàn (aiSummary)
 
     private String BHYT;
 }

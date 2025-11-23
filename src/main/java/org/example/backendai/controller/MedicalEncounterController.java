@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendai.dto.request.MedicalEncounterRequest;
 import org.example.backendai.dto.response.MedicalEncounterResponse;
+import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.service.MedicalEncounterService;
 import org.example.backendai.util.ApiResponseUtil;
 import org.example.backendai.constant.SuccessCode;
@@ -32,6 +33,13 @@ public class MedicalEncounterController {
         List<MedicalEncounterResponse> data = service.getAll();
         return ApiResponseUtil.success(data, SuccessCode.MEDICAL_ENCOUNTER_LISTED);
     }
+
+//    @GetMapping("/{doctorId}/patients")
+//    public ResponseEntity<List<PatientResponse>> getAllPatientsByDoctor(
+//            @PathVariable Integer doctorId) {
+//        List<PatientResponse> data = service.(doctorId);
+//        return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
+//    }
 
 
 }
