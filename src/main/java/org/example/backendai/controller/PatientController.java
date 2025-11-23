@@ -2,7 +2,10 @@ package org.example.backendai.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backendai.constant.SuccessCode;
+import org.example.backendai.dto.request.DoctorUpdateRequest;
 import org.example.backendai.dto.request.PatientRegisterRequest;
+import org.example.backendai.dto.request.PatientUpdateRequest;
+import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.dto.response.MedicalEncounterResponse;
 import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.service.PatientService;
@@ -36,4 +39,21 @@ public class PatientController {
         List<PatientResponse> data = patientService.getAllPatientsByDoctorId(doctorId);
         return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponse> getPatient(
+            @PathVariable Integer id) {
+        PatientResponse data = patientService.getPatientById(id);
+        return ApiResponseUtil.success(data, SuccessCode.PATIENT_GET);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientResponse> updateDoctor(
+            @PathVariable Long id,
+            @RequestBody PatientUpdateRequest request) {
+
+        PatientResponse data = patientService.updatePatient(id, request);
+        return ApiResponseUtil.success(data, SuccessCode.PATIENT_UPDATED);
+    }
+
 }

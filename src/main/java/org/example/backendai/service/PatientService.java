@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.constant.UserRole;
 import org.example.backendai.dto.request.PatientRegisterRequest;
+import org.example.backendai.dto.request.PatientUpdateRequest;
+import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.Doctor;
 import org.example.backendai.entity.Patient;
@@ -84,5 +86,37 @@ public class PatientService {
         return patients.stream()
                 .map(patient ->
                         mapper.toPatientResponse(patient, patient.getUser())).toList();
+    }
+
+    public PatientResponse getPatientById(Integer id) {
+        Patient patient = repository.findById(Long.valueOf(id)).orElseThrow(() ->
+                new AppException(ErrorCode.PATIENT_NOT_EXISTED));
+
+        return mapper.toPatientResponse(patient, patient.getUser());
+    }
+
+
+    public PatientResponse updatePatient(Long id, PatientUpdateRequest request) {
+        Patient existingPatient = repository.findById(id).orElseThrow(() ->
+                new AppException(ErrorCode.PATIENT_NOT_EXISTED));
+
+        User existingUser = existingPatient.getUser();
+        mapper.updateUserFromRequest(request, existingUser);
+
+
+        if (request.getManagingDoctorId() != null) {
+
+            Doctor newDoctor = doctorRepository.findById(request.getManagingDoctorId()).orElseThrow(() ->
+                    new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
+            existingPatient.setManagingDoctor(newDoctor);
+        }
+
+        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        userRepository.save(existingUser);
+
+        return mapper.toPatientResponse(existingPatient, existingUser);
     }
 }

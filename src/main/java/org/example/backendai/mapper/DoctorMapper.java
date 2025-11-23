@@ -1,11 +1,13 @@
 package org.example.backendai.mapper;
 
+import org.example.backendai.dto.request.DoctorUpdateRequest;
 import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.entity.Doctor;
 import org.example.backendai.dto.request.DoctorRegisterRequest; // Giả định có request này
 import org.example.backendai.entity.User; // Giả định cần ánh xạ User
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping; // Thêm import này
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
 
@@ -51,4 +53,18 @@ public interface DoctorMapper {
 
     // Ánh xạ DoctorRegisterRequest sang Doctor Entity
     Doctor toDoctor(DoctorRegisterRequest request);
+
+    // Phương thức ánh xạ từ Request sang Doctor Entity để cập nhật
+    @Mapping(target = "id", ignore = true) // Luôn bỏ qua ID khi cập nhật
+    @Mapping(target = "user", ignore = true)
+    void updateDoctorFromRequest(DoctorUpdateRequest request, @MappingTarget Doctor doctor);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "username", ignore = true),
+            @Mapping(target = "password", ignore = true),
+            @Mapping(target = "role", ignore = true)
+
+    })
+    void updateUserFromRequest(DoctorUpdateRequest request, @MappingTarget User user);
 }

@@ -1,6 +1,7 @@
 package org.example.backendai.mapper;
 
 import org.example.backendai.dto.request.PatientRegisterRequest;
+import org.example.backendai.dto.request.PatientUpdateRequest;
 import org.example.backendai.dto.response.MedicalEncounterResponse;
 import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.MedicalEncounter;
@@ -32,4 +33,19 @@ public interface PatientMapper {
     @Mapping(source = "patient.user.fullName", target = "patientName")
 
     MedicalEncounterResponse toMedicalEncounterResponse(MedicalEncounter medicalEncounter);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "managingDoctor", ignore = true)
+    void updatePatientFromRequest(PatientUpdateRequest request, @MappingTarget Patient patient);
+
+    // 🔔 BỔ SUNG: HÀM CẬP NHẬT USER TỪ PATIENTUPDATEREQUEST
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "username", ignore = true),
+            @Mapping(target = "password", ignore = true), // Mật khẩu được xử lý riêng trong Service
+            @Mapping(target = "role", ignore = true)
+            // MapStruct sẽ tự động ánh xạ fullName, phone, dateOfBirth, gender
+    })
+    void updateUserFromRequest(PatientUpdateRequest request, @MappingTarget User user);
 }

@@ -11,7 +11,8 @@ public enum ErrorCode {
     LOGIN_FAIL(1001, "Login fail", HttpStatus.BAD_REQUEST),
     USERNAME_EXISTED(1002, "Username already exists", HttpStatus.BAD_REQUEST),
     DOCTOR_NOT_EXISTED(1002, "Doctor already not exists", HttpStatus.BAD_REQUEST),
-    PATIENT_NOT_EXISTED(1002, "Doctor already not exists", HttpStatus.BAD_REQUEST),
+    USERNAME_NOT_EXISTED(1002, "Username already not exists", HttpStatus.BAD_REQUEST),
+    PATIENT_NOT_EXISTED(1002, "Patient already not exists", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD(1005, "Invalid password", HttpStatus.UNAUTHORIZED),
 
     // Message errors (3001-3020)

@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class MedicalEncounterRequest {
      Integer patientId; // ID của bệnh nhân
      String admissionReason;
+     LocalDateTime admissionDate;
+     LocalDateTime dischargeDate;
      String presentIllnessHistory;
      String pastMedicalHistory;
      String physicalExam;

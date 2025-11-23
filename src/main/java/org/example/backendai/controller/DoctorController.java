@@ -3,6 +3,7 @@ package org.example.backendai.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.backendai.constant.SuccessCode;
 import org.example.backendai.dto.request.DoctorRegisterRequest;
+import org.example.backendai.dto.request.DoctorUpdateRequest;
 import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.service.DoctorService;
@@ -37,7 +38,14 @@ public class DoctorController {
         return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<DoctorResponse> updateDoctor(
+            @PathVariable Long id,
+            @RequestBody DoctorUpdateRequest request) {
 
+        DoctorResponse data = service.updateDoctor(id, request);
+        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_UPDATED);
+    }
 
 
 }

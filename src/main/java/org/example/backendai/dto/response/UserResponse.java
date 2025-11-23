@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,11 +18,10 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
-    int code;
-    String message;
-    HttpStatus status;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy")
-    LocalDateTime timestamp;
+    String id;
+    String fullName;
+    String phone;
+    LocalDate dateOfBirth;
+    String gender;
 
 }

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.constant.UserRole;
 import org.example.backendai.dto.request.DoctorRegisterRequest;
+import org.example.backendai.dto.request.DoctorUpdateRequest;
 import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.entity.Doctor;
 import org.example.backendai.entity.User;
@@ -71,6 +72,17 @@ public class DoctorService {
                 new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
 
         return mapper.toDoctorResponse(doctor, doctor.getUser());
-    }
+    }// Giả định: File DoctorService.java (Sửa hàm updateDoctor)
 
+    public DoctorResponse updateDoctor(Long id, DoctorUpdateRequest request) {
+        Doctor existingDoctor = doctorRepository.findById(id).orElseThrow(() ->
+                new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
+        User existingUser = existingDoctor.getUser();
+        mapper.updateUserFromRequest(request, existingUser);
+
+        userRepository.save(existingUser);
+
+
+        return mapper.toDoctorResponse(existingDoctor, existingUser);
+    }
 }

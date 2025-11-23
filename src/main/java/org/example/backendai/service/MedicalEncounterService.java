@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,13 +40,17 @@ public class MedicalEncounterService {
 
         log.info(request.toString() + "ok");
         MedicalEncounter encounter = mapper.toMedicalEncounter(request);
-        encounter.setPatient(patient);
-        encounter.setAiSummary(request.getAiSummary());
-        repository.save(encounter);
 
+        encounter.setPatient(patient);
+        if (encounter.getAdmissionDate() == null) {
+            encounter.setAdmissionDate(request.getAdmissionDate());
+        }
+        if (encounter.getDischargeDate() == null) {
+            encounter.setDischargeDate(request.getDischargeDate());
+        }
+        repository.save(encounter);
         return mapper.toMedicalEncounterResponse(encounter);
     }
-
     public List<MedicalEncounterResponse> getAll() {
         List<MedicalEncounter> encounters = repository.findAll();
         return encounters.stream()

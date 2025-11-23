@@ -25,7 +25,7 @@ public class MedicalEncounterController {
     @PostMapping("/create")
     public ResponseEntity<MedicalEncounterResponse> register(@RequestBody MedicalEncounterRequest request) {
         MedicalEncounterResponse data = service.createEncounter(request);
-        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_CREATED);
+        return ApiResponseUtil.success(data, SuccessCode.MEDICAL_ENCOUNTER_CREATED);
     }
 
     @GetMapping
