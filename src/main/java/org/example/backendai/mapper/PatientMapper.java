@@ -8,7 +8,6 @@ import org.example.backendai.entity.MedicalEncounter;
 import org.example.backendai.entity.Patient;
 import org.example.backendai.entity.User;
 import org.mapstruct.*;
-
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface PatientMapper {
 
@@ -25,13 +24,13 @@ public interface PatientMapper {
             target = "managingDoctorName",
             expression = "java(patient.getManagingDoctor() != null && patient.getManagingDoctor().getUser() != null ? patient.getManagingDoctor().getUser().getFullName() : null)"
     )
-    @Mapping(source = "patient.medicalEncounters", target = "medicalEncounters")
+    // sửa lại từ List sang 1 object
+    @Mapping(source = "patient.medicalEncounter", target = "medicalEncounter")
     PatientResponse toPatientResponse(Patient patient, User user);
 
     @Mapping(source = "id", target = "encounterId")
     @Mapping(source = "patient.id", target = "patientId")
     @Mapping(source = "patient.user.fullName", target = "patientName")
-
     MedicalEncounterResponse toMedicalEncounterResponse(MedicalEncounter medicalEncounter);
 
     @Mapping(target = "id", ignore = true)
@@ -39,13 +38,11 @@ public interface PatientMapper {
     @Mapping(target = "managingDoctor", ignore = true)
     void updatePatientFromRequest(PatientUpdateRequest request, @MappingTarget Patient patient);
 
-    // 🔔 BỔ SUNG: HÀM CẬP NHẬT USER TỪ PATIENTUPDATEREQUEST
     @Mappings({
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "username", ignore = true),
-            @Mapping(target = "password", ignore = true), // Mật khẩu được xử lý riêng trong Service
+            @Mapping(target = "password", ignore = true),
             @Mapping(target = "role", ignore = true)
-            // MapStruct sẽ tự động ánh xạ fullName, phone, dateOfBirth, gender
     })
     void updateUserFromRequest(PatientUpdateRequest request, @MappingTarget User user);
 }

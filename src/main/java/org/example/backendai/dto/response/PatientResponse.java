@@ -19,5 +19,5 @@ public class PatientResponse {
      String gender;
      String relativePhoneNumber;
      String managingDoctorName;
-    List<MedicalEncounterResponse> medicalEncounters;
+    MedicalEncounterResponse medicalEncounter;
 }

@@ -1,10 +1,8 @@
 package org.example.backendai.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.backendai.constant.UserRole;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 
 @Entity
 @Getter
@@ -19,12 +17,11 @@ public class MedicalEncounter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PatientID", nullable = false)
     private Patient patient;
 
     private LocalDateTime admissionDate;
-
     private LocalDateTime dischargeDate;
 
     @Lob
@@ -49,7 +46,7 @@ public class MedicalEncounter {
     private String treatmentPlan;
 
     @Lob
-    private String aiSummary; // <-- Đã sửa thành chữ thường hoàn toàn (aiSummary)
+    private String aiSummary;
 
     private String BHYT;
 }

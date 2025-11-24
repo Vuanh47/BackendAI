@@ -1,12 +1,10 @@
 package org.example.backendai.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.backendai.constant.UserRole;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-
 
 @Entity
 @Getter
@@ -26,13 +24,13 @@ public class Patient {
     private User user;
 
     @Column(length = 20)
-    private String RelativePhoneNumber;
-
+    private String relativePhoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ManagingDoctorID")
     private Doctor managingDoctor;
 
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    private List<MedicalEncounter> medicalEncounters;
+    // 1 patient <-> 1 medical encounter
+    @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private MedicalEncounter medicalEncounter;
 }

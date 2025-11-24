@@ -10,5 +10,7 @@ import java.util.List;
 public interface MedicalEncounterRepository extends JpaRepository<MedicalEncounter,Long> {
     // Tìm theo ID của MedicalEncounter (thường là findById)
     List<MedicalEncounter> findAllById(Integer id);
-    List<MedicalEncounter> findByPatientId(Long patientId);
+
+    MedicalEncounter findByPatientId(Integer patientId);
+    
 }

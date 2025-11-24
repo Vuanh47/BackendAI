@@ -35,12 +35,12 @@ public class MedicalEncounterController {
     }
 
 
-//    @GetMapping("/{doctorId}/patients")
-//    public ResponseEntity<List<PatientResponse>> getAllPatientsByDoctor(
-//            @PathVariable Integer doctorId) {
-//        List<PatientResponse> data = service.(doctorId);
-//        return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<MedicalEncounterResponse> getMedicalEnconter(
+            @PathVariable Integer id) {
 
+        MedicalEncounterResponse data = service.getByPatientId(id);
+        return ApiResponseUtil.success(data, SuccessCode.MEDICAL_ENCOUNTER_LISTED);
+    }
 
 }
