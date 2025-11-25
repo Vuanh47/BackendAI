@@ -1,5 +1,6 @@
 package org.example.backendai.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,4 +28,7 @@ public class MedicalEncounterRequest {
 
      String aiSummary; // Sẽ được gán sau khi AI xử lý
      MultipartFile imageFile; // Ảnh gửi lên từ client
+
+    @JsonProperty("BHYT")
+     String BHYT;
 }

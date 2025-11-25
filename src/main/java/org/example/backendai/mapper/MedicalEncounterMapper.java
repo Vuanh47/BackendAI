@@ -15,8 +15,10 @@ public interface MedicalEncounterMapper {
 
     // Ánh xạ từ Request sang Entity
     // Bạn cần ánh xạ ngược lại các trường nếu có sự khác biệt về tên
+
     @Mapping(target = "id", ignore = true) // ID sẽ được DB sinh ra
     @Mapping(target = "patient", ignore = true) // Patient được gán thủ công trong Service
+    @Mapping(target = "BHYT", source = "BHYT")
     MedicalEncounter toMedicalEncounter(MedicalEncounterRequest request);
 
 

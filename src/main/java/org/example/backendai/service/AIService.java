@@ -34,7 +34,7 @@ public class AIService {
             .readTimeout(120, TimeUnit.SECONDS)  // THỜI GIAN CHỜ ĐỌC (QUAN TRỌNG NHẤT)
             .build();
 
-    String API_URL = "https://pump-age-wood-mega.trycloudflare.com/analyze";
+    String API_URL = "https://boutique-hose-signed-divide.trycloudflare.com/analyze";
 
     ObjectMapper mapper = new ObjectMapper();
 
