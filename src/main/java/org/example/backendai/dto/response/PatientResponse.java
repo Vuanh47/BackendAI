@@ -14,6 +14,7 @@ import java.util.List;
 public class PatientResponse {
      Integer id;
      String fullName;
+     String username;
      String phone;
      LocalDate dateOfBirth;
      String gender;
