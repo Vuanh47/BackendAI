@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.example.backendai.constant.Department;
 import org.example.backendai.constant.Gender;
 import org.example.backendai.constant.UserRole;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 
@@ -25,5 +27,6 @@ public class DoctorRegisterRequest {
 
     // --- Thông tin riêng của bác sĩ (Doctor entity) ---
     String specialty;   // Chuyên khoa
-    String department;  // Phòng ban hoặc khoa
+
+    Department department;
 }

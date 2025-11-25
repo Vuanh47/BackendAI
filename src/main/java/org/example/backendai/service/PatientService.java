@@ -48,7 +48,7 @@ public class PatientService {
         if (userRepository.existsByUsername(request.getUsername())){
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
-        Doctor doctor = doctorRepository.findById(request.getManagingDoctorId().longValue())
+        Doctor doctor = doctorRepository.findById(request.getManagingDoctorId())
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
         User user = userMapper.toUser(request);
         user.setPhone(request.getPhone());
@@ -106,7 +106,7 @@ public class PatientService {
 
         if (request.getManagingDoctorId() != null) {
 
-            Doctor newDoctor = doctorRepository.findById(request.getManagingDoctorId()).orElseThrow(() ->
+            Doctor newDoctor = doctorRepository.findById(Math.toIntExact(request.getManagingDoctorId())).orElseThrow(() ->
                     new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
             existingPatient.setManagingDoctor(newDoctor);
         }

@@ -31,8 +31,10 @@ public enum ErrorCode {
     // Permission errors (3041-3060)
     NOT_DOCTOR_ROLE(3041, "Only doctors can verify classifications",HttpStatus.BAD_REQUEST),
     NOT_MESSAGE_SENDER(3042, "You are not the sender of this message",HttpStatus.BAD_REQUEST),
-    NOT_MESSAGE_RECEIVER(3043, "You are not the receiver of this message",HttpStatus.BAD_REQUEST);
+    NOT_MESSAGE_RECEIVER(3043, "You are not the receiver of this message",HttpStatus.BAD_REQUEST),
 
+    PATIENT_HAS_NO_MANAGING_DOCTOR(1010, "This patient has no managing doctor",HttpStatus.BAD_REQUEST),
+    NO_DOCTORS_IN_DEPARTMENT(1011, "No doctors found in this department",HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatus status;

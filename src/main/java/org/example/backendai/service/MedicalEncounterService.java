@@ -51,6 +51,8 @@ public class MedicalEncounterService {
         repository.save(encounter);
         return mapper.toMedicalEncounterResponse(encounter);
     }
+
+
     public List<MedicalEncounterResponse> getAll() {
         List<MedicalEncounter> encounters = repository.findAll();
         return encounters.stream()

@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.backendai.constant.Department;
 import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.constant.UserRole;
 import org.example.backendai.dto.request.DoctorRegisterRequest;
 import org.example.backendai.dto.request.DoctorUpdateRequest;
 import org.example.backendai.dto.response.DoctorResponse;
 import org.example.backendai.entity.Doctor;
+import org.example.backendai.entity.Patient;
 import org.example.backendai.entity.User;
 import org.example.backendai.exception.AppException;
 import org.example.backendai.mapper.DoctorMapper;
@@ -68,14 +70,14 @@ public class DoctorService {
     }
 
     public DoctorResponse getDoctorById(Integer id) {
-         Doctor doctor = doctorRepository.findById(Long.valueOf(id)).orElseThrow(() ->
+         Doctor doctor = doctorRepository.findById(Math.toIntExact(Long.valueOf(id))).orElseThrow(() ->
                 new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
 
         return mapper.toDoctorResponse(doctor, doctor.getUser());
     }// Giả định: File DoctorService.java (Sửa hàm updateDoctor)
 
     public DoctorResponse updateDoctor(Long id, DoctorUpdateRequest request) {
-        Doctor existingDoctor = doctorRepository.findById(id).orElseThrow(() ->
+        Doctor existingDoctor = doctorRepository.findById(Math.toIntExact(id)).orElseThrow(() ->
                 new AppException(ErrorCode.DOCTOR_NOT_EXISTED));
         User existingUser = existingDoctor.getUser();
         mapper.updateUserFromRequest(request, existingUser);
@@ -84,5 +86,32 @@ public class DoctorService {
 
 
         return mapper.toDoctorResponse(existingDoctor, existingUser);
+    }
+
+    public List<DoctorResponse> getDoctorsInSameDepartmentByPatientId(Integer patientId) {
+        // 1. Tìm bệnh nhân theo ID
+        Patient patient = patientRepository.findById(Long.valueOf(patientId))
+                .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
+
+        // 2. Lấy bác sĩ quản lý
+        Doctor managingDoctor = patient.getManagingDoctor();
+        if (managingDoctor == null) {
+            throw new AppException(ErrorCode.PATIENT_HAS_NO_MANAGING_DOCTOR);
+        }
+
+        // 3. Lấy department của bác sĩ quản lý
+        Department department = managingDoctor.getDepartment();
+
+        // 4. Tìm tất cả bác sĩ cùng khoa (có JOIN FETCH user để tránh N+1)
+        List<Doctor> doctorsInSameDept = doctorRepository.findByDepartmentWithUser(department);
+
+        if (doctorsInSameDept.isEmpty()) {
+            throw new AppException(ErrorCode.NO_DOCTORS_IN_DEPARTMENT);
+        }
+
+        // 5. Map sang Response
+        return doctorsInSameDept.stream()
+                .map(doctor -> mapper.toDoctorResponse(doctor, doctor.getUser()))
+                .toList();
     }
 }

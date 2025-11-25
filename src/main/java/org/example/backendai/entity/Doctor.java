@@ -1,6 +1,7 @@
 package org.example.backendai.entity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.backendai.constant.Department;
 import org.example.backendai.constant.UserRole;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,8 +28,9 @@ public class Doctor {
     @Column(length = 255)
     private String specialty;
 
-    @Column(length = 255)
-    private String department;
+    @Column(length = 50, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Department department;
 
     @OneToMany(mappedBy = "managingDoctor")
     private Set<Patient> patients;

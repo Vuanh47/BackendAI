@@ -49,4 +49,7 @@ public class MedicalEncounter {
     private String aiSummary;
 
     private String BHYT;
+
+    @Column(name = "severity_level", length = 20)
+    private String severityLevel;
 }

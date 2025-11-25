@@ -22,9 +22,18 @@ public class AIController {
 
      AIService service;
 
-    @PostMapping(value = "/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AIResponse> analyze(@RequestParam("file") MultipartFile file) throws Exception {
-        log.info("Received request to analyze file: {}", file.getOriginalFilename());
+    @PostMapping("/analyze")
+    public ResponseEntity<AIResponse> analyze(@RequestPart("file") MultipartFile file) throws Exception {
+        log.info("=== Bắt đầu xử lý file ===");
+        log.info("Tên file: {}", file.getOriginalFilename());
+        log.info("Content-Type: {}", file.getContentType());
+        log.info("Kích thước: {} bytes", file.getSize());
+        log.info("File rỗng: {}", file.isEmpty());
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File không được để trống");
+        }
+
         AIResponse data = service.analyze(file);
         return ApiResponseUtil.success(data, SuccessCode.LOGIN_SUCCESS);
     }

@@ -25,6 +25,7 @@ public class MedicalEncounterResponse {
     private String finalDiagnosis; // Chẩn đoán cuối cùng
     private String labRecommendations; // Đề xuất xét nghiệm
     private String treatmentPlan; // Kế hoạch điều trị
-    private String aiSummary; // <-- Khớp hoàn toàn
+    private String aiSummary;
+    private String severityLevel;// <-- Khớp hoàn toàn
     private String BHYT;
 }
