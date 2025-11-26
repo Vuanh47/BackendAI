@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 public class MessageClassificationService {
 
     PatientRepository patientRepository;
-    MessageClassificationRepository messageClassificationRepository;
+    MessageClassificationRepository repository;
     MessageClassificationMapper messageClassificationMapper;
     RestTemplate restTemplate;
 
@@ -99,7 +99,7 @@ public class MessageClassificationService {
         }
 
         // 6. Kiểm tra xem bệnh nhân đã có classification chưa
-        MessageClassification classification = messageClassificationRepository
+        MessageClassification classification = repository
                 .findByPatientId(patientId)
                 .orElse(null);
 
@@ -125,7 +125,7 @@ public class MessageClassificationService {
             classification.setVerifiedAt(LocalDateTime.now());
         }
 
-        MessageClassification savedClassification = messageClassificationRepository.save(classification);
+        MessageClassification savedClassification = repository.save(classification);
 
         log.info("{} phân loại thành công - ID: {}, Severity: {}, Confidence: {}",
                 isNewRecord ? "Tạo mới" : "Cập nhật",
@@ -146,7 +146,7 @@ public class MessageClassificationService {
     public MessageClassificationResponse getPatientClassification(Integer patientId) {
         log.info("Lấy tình trạng phân loại của bệnh nhân ID: {}", patientId);
 
-        MessageClassification classification = messageClassificationRepository
+        MessageClassification classification = repository
                 .findByPatientId(patientId)
                 .orElseThrow(() -> {
                     log.error("Chưa có phân loại cho bệnh nhân ID: {}", patientId);
@@ -158,5 +158,12 @@ public class MessageClassificationService {
         response.setIsNewRecord(false);
 
         return response;
+    }
+
+    public void deleteByPatientId(Integer patientId) {
+        MessageClassification classification = repository.findByPatientId(patientId).orElseThrow(() ->
+                new AppException(ErrorCode.CLASSIFICATION_NOT_EXISTED));
+
+        repository.delete(classification);
     }
 }

@@ -3,6 +3,7 @@ package org.example.backendai.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.backendai.constant.SuccessCode;
 import org.example.backendai.dto.request.MessageClassifyRequest;
+import org.example.backendai.dto.response.ApiResponse;
 import org.example.backendai.dto.response.MessageClassificationResponse;
 import org.example.backendai.service.MessageClassificationService;
 import org.example.backendai.util.ApiResponseUtil;
@@ -15,6 +16,35 @@ import org.springframework.web.bind.annotation.*;
 public class MessageClassificationController {
 
     private final MessageClassificationService service;
+
+    /**
+     * Lấy tình trạng phân loại hiện tại của bệnh nhân
+     *
+     * @param patientId ID của bệnh nhân
+     * @return MessageClassificationResponse với thông tin phân loại hiện tại
+     */
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<MessageClassificationResponse> getPatientClassification(
+            @PathVariable Integer patientId) {
+        try {
+            MessageClassificationResponse data = service.getPatientClassification(patientId);
+            return ApiResponseUtil.success(data, SuccessCode.CLASSIFICATION_RETRIEVED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * Xóa phân loại của bệnh nhân
+     *
+     * @param patientId ID của bệnh nhân
+     */
+    @DeleteMapping("/patient/{patientId}")
+    public ResponseEntity<ApiResponse<Void>> deletePatientClassification(@PathVariable Integer patientId){
+        service.deleteByPatientId(patientId);
+        return ApiResponseUtil.success(SuccessCode.PATIENT_CLASSIFICATION_DELETED);
+    }
 
     /**
      * Phân loại mức độ nghiêm trọng của bệnh nhân bằng AI
@@ -33,20 +63,5 @@ public class MessageClassificationController {
         );
 
         return ApiResponseUtil.success(data, SuccessCode.MESSAGE_CLASSIFIED);
-    }
-
-    /**
-     * Lấy tình trạng phân loại hiện tại của bệnh nhân
-     *
-     * @param patientId ID của bệnh nhân
-     * @return MessageClassificationResponse với thông tin phân loại hiện tại
-     */
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<MessageClassificationResponse> getPatientClassification(
-            @PathVariable Integer patientId) {
-
-        MessageClassificationResponse data = service.getPatientClassification(patientId);
-
-        return ApiResponseUtil.success(data, SuccessCode.CLASSIFICATION_RETRIEVED);
     }
 }

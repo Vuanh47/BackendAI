@@ -47,6 +47,7 @@ public enum SuccessCode {
     GET_ROOMS_SUCCESS(2009, "Rooms retrieved successfully", HttpStatus.OK),
     GET_UNREAD_COUNT_SUCCESS(2010, "Unread count retrieved successfully", HttpStatus.OK),
 
+    PATIENT_CLASSIFICATION_DELETED(1023, "Xóa phân loại bệnh nhân thành công", HttpStatus.OK),
     CLASSIFICATION_RETRIEVED(1022, "Lấy thông tin phân loại thành công", HttpStatus.OK),
     MESSAGE_CLASSIFIED(1021, "Phân loại tin nhắn thành công", HttpStatus.OK);
 
