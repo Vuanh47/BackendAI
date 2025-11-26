@@ -56,19 +56,5 @@ public class Message {
     @Column(nullable = false)
     Boolean isRead = false;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<MessageClassification> classifications = new HashSet<>();
 
-    // Helper method để thêm classification
-    public void addClassification(MessageClassification classification) {
-        classifications.add(classification);
-        classification.setMessage(this);
-    }
-
-    // Helper method để xóa classification
-    public void removeClassification(MessageClassification classification) {
-        classifications.remove(classification);
-        classification.setMessage(null);
-    }
 }

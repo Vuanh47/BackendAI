@@ -6,11 +6,12 @@ import org.example.backendai.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MedicalEncounterRepository extends JpaRepository<MedicalEncounter,Long> {
     // Tìm theo ID của MedicalEncounter (thường là findById)
     List<MedicalEncounter> findAllById(Integer id);
 
-    MedicalEncounter findByPatientId(Integer patientId);
-    
+
+    Optional<MedicalEncounter> findByPatientId(Integer patientId);
 }

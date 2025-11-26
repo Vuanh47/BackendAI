@@ -35,7 +35,7 @@ public class DoctorController {
     public ResponseEntity<DoctorResponse> getDoctorID(
             @PathVariable Integer doctorId) {
         DoctorResponse data = service.getDoctorById(doctorId);
-        return ApiResponseUtil.success(data, SuccessCode.PATIENT_LISTED);
+        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_GET);
     }
 
     @PutMapping("/{id}")

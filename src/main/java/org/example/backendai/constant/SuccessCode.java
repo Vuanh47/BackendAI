@@ -45,7 +45,10 @@ public enum SuccessCode {
     MESSAGE_MARKED_READ(2007, "Message marked as read successfully", HttpStatus.OK),
     ALL_MESSAGES_MARKED_READ(2008, "All messages marked as read successfully", HttpStatus.OK),
     GET_ROOMS_SUCCESS(2009, "Rooms retrieved successfully", HttpStatus.OK),
-    GET_UNREAD_COUNT_SUCCESS(2010, "Unread count retrieved successfully", HttpStatus.OK);
+    GET_UNREAD_COUNT_SUCCESS(2010, "Unread count retrieved successfully", HttpStatus.OK),
+
+    CLASSIFICATION_RETRIEVED(1022, "Lấy thông tin phân loại thành công", HttpStatus.OK),
+    MESSAGE_CLASSIFIED(1021, "Phân loại tin nhắn thành công", HttpStatus.OK);
 
     int code;
     String message;

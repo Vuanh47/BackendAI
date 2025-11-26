@@ -25,3 +25,6 @@ logging:
       max-request-size: 10MB
       file-size-threshold: 2KB
 
+ai:
+  api:
+    url: http://127.0.0.1:8000/predict_final

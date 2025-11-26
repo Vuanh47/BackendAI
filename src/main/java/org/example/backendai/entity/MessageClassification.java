@@ -1,10 +1,10 @@
 package org.example.backendai.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.backendai.constant.UserRole;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import org.example.backendai.constant.SeverityLevel;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -19,20 +19,15 @@ public class MessageClassification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MessageID", nullable = false)
-    private Message message;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PatientID", nullable = false, unique = true)
+    private Patient patient;
 
-    @Column(columnDefinition = "enum('Khẩn', 'Trung bình', 'Nguy cấp')")
-    private String AIClassification;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ai_classification")
+    private SeverityLevel AIClassification;
 
-    @Lob
-    private String AIReasoning;
+    private String confidence;
 
-    @Column(columnDefinition = "enum('Khẩn', 'Trung bình', 'Nguy cấp')")
-    private String DoctorVerification;
-
-    private LocalDateTime VerifiedAt;
-
-
+    private LocalDateTime verifiedAt;
 }

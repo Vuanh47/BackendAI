@@ -5,9 +5,11 @@ import org.example.backendai.dto.request.PatientUpdateRequest;
 import org.example.backendai.dto.response.MedicalEncounterResponse;
 import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.entity.MedicalEncounter;
+import org.example.backendai.entity.MessageClassification;
 import org.example.backendai.entity.Patient;
 import org.example.backendai.entity.User;
 import org.mapstruct.*;
+
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface PatientMapper {
 
@@ -25,7 +27,6 @@ public interface PatientMapper {
             target = "managingDoctorName",
             expression = "java(patient.getManagingDoctor() != null && patient.getManagingDoctor().getUser() != null ? patient.getManagingDoctor().getUser().getFullName() : null)"
     )
-    // sửa lại từ List sang 1 object
     @Mapping(source = "patient.medicalEncounter", target = "medicalEncounter")
     PatientResponse toPatientResponse(Patient patient, User user);
 
@@ -46,4 +47,17 @@ public interface PatientMapper {
             @Mapping(target = "role", ignore = true)
     })
     void updateUserFromRequest(PatientUpdateRequest request, @MappingTarget User user);
+
+    /**
+     * Map MessageClassification vào PatientResponse để set severity level
+     */
+    default void setSeverityLevelToResponse(PatientResponse response, MessageClassification classification) {
+        if (classification != null) {
+            response.setSeverityLevel(classification.getAIClassification());
+            response.setDisplaySeverityLevel(classification.getAIClassification().getDisplayName());
+            response.setConfidence(classification.getConfidence());
+        } else {
+            response.setDisplaySeverityLevel("Chưa phân loại");
+        }
+    }
 }

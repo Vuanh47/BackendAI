@@ -93,7 +93,9 @@ public class MedicalEncounterService {
         patientRepository.findById(Long.valueOf(patientId))
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
 
-        MedicalEncounter encounter = repository.findByPatientId(patientId);
+        MedicalEncounter encounter = repository.findByPatientId(patientId).orElseThrow(
+                () -> new AppException(ErrorCode.PATIENT_NOT_EXISTED)
+        );
 
         return mapper.toMedicalEncounterResponse(encounter);
     }
