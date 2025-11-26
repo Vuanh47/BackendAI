@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum SeverityLevel {
     NANG("Nặng", "nặng"),
-    KHAN("Khẩn", "trung bình"),
-    TRUNG_BINH("Trung bình", "nhẹ");
+    TRUNG_BINH("Trung bình", "trung bình"),
+    NHE("Nhẹ", "nhẹ");
 
     private final String displayName;
     private final String aiLabel;
