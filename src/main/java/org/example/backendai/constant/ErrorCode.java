@@ -50,8 +50,17 @@ public enum ErrorCode {
     INVALID_AI_LABEL(5003, "Invalid AI label returned", HttpStatus.BAD_REQUEST),
 
     CLASSIFICATION_NOT_EXISTED(4004, "No classification available for this patient", HttpStatus.NOT_FOUND),
+    // File processing errors
+    INVALID_FILE(4001, "File không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(4002, "Loại file không được hỗ trợ. Chỉ chấp nhận file ảnh (JPG, PNG)", HttpStatus.BAD_REQUEST),
+    FILE_SIZE_EXCEEDED(4003, "Kích thước file vượt quá giới hạn cho phép (10MB)", HttpStatus.BAD_REQUEST),
+    FILE_PROCESSING_ERROR(4004, "Lỗi khi xử lý file", HttpStatus.BAD_REQUEST),
 
-    MESSAGE_NOT_EXISTED(4005, "Message does not exist", HttpStatus.NOT_FOUND),
+    // AI Image API errors
+    AI_IMAGE_API_ERROR(5001, "Lỗi khi gọi AI Image Analysis API", HttpStatus.BAD_REQUEST),
+    AI_IMAGE_API_NO_RESPONSE(5002, "AI Image Analysis API không trả về kết quả", HttpStatus.BAD_REQUEST),
+
+      MESSAGE_NOT_EXISTED(4005, "Message does not exist", HttpStatus.NOT_FOUND),
     MESSAGE_CLASSIFICATION_NOT_EXISTED(4005, "Message classification does not exist", HttpStatus.NOT_FOUND);
 
     int code;

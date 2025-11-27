@@ -65,4 +65,10 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
             "m.receiver.id = :receiverId AND m.isRead = false " +
             "ORDER BY m.sentAt ASC")
     List<Message> findUnreadMessagesByReceiverId(@Param("receiverId") Long receiverId);
+
+    // Get unread messages where doctor is receiver and patient is sender
+    List<Message> findByReceiverAndSenderAndIsReadFalseOrderBySentAtDesc(
+            User receiver,
+            User sender);
+    
 }

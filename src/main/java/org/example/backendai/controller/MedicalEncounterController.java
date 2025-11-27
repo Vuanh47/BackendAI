@@ -8,6 +8,7 @@ import org.example.backendai.dto.response.PatientResponse;
 import org.example.backendai.service.MedicalEncounterService;
 import org.example.backendai.util.ApiResponseUtil;
 import org.example.backendai.constant.SuccessCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,4 +44,20 @@ public class MedicalEncounterController {
         return ApiResponseUtil.success(data, SuccessCode.MEDICAL_ENCOUNTER_LISTED);
     }
 
+
+    @PostMapping(value = "/create-from-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MedicalEncounterResponse> createEncounterFromImage(
+            @RequestParam("patientId") Integer patientId,
+            @RequestParam("image") MultipartFile imageFile) {
+
+        log.info("Received request to create encounter from image for patient: {}", patientId);
+        log.info("Image file: {} ({} bytes)",
+                imageFile.getOriginalFilename(),
+                imageFile.getSize());
+
+        MedicalEncounterResponse response = service
+                .createEncounterFromImage(patientId, imageFile);
+
+        return ApiResponseUtil.success(response, SuccessCode.MEDICAL_ENCOUNTER_CREATED);
+    }
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MedicalEncounterResponse {
 
-    private Integer encounterId; // ID của hồ sơ khám bệnh
+    private Integer id; // ID của hồ sơ khám bệnh
 
     private Integer patientId; // ID của bệnh nhân
     private String patientName; // Tên bệnh nhân (nếu cần hiển thị)

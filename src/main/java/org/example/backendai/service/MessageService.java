@@ -129,56 +129,55 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    public void markAllAsRead(String username) {
-        log.info("Marking all messages as read for user: {}", username);
+    public void markAllAsReadBetweenUsers(String doctorUsername, String patientUsername) {
+        log.info("Marking all messages as read between doctor: {} and patient: {}",
+                doctorUsername, patientUsername);
 
-        // 1. Tìm bác sĩ
-        User userDoctor = userRepository.findByUsername(username)
+        // 1. Find doctor
+        User doctor = userRepository.findByUsername(doctorUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        log.info("Doctor found: {}", userDoctor.getUsername());
+        log.info("Doctor found: {}", doctor.getUsername());
 
-        // 2. Lấy tất cả tin nhắn chưa đọc mà bác sĩ là người nhận
+        // 2. Find patient
+        User patient = userRepository.findByUsername(patientUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        log.info("Patient found: {}", patient.getUsername());
+
+        // 3. Get unread messages between doctor (receiver) and patient (sender)
         List<Message> unreadMessages = messageRepository
-                .findByReceiverAndIsReadFalseOrderBySentAtDesc(userDoctor);
+                .findByReceiverAndSenderAndIsReadFalseOrderBySentAtDesc(doctor, patient);
 
         if (unreadMessages.isEmpty()) {
-            log.info("No unread messages for doctor: {}", username);
+            log.info("No unread messages between doctor: {} and patient: {}",
+                    doctorUsername, patientUsername);
             return;
         }
 
-        log.info("Found {} unread messages", unreadMessages.size());
+        log.info("Found {} unread messages between doctor and patient", unreadMessages.size());
 
-        // 3. Lấy danh sách bệnh nhân đã gửi tin nhắn (loại bỏ trùng lặp)
-        List<User> patients = unreadMessages.stream()
-                .map(Message::getSender)
-                .distinct()
-                .toList();
+        // 4. Delete classification for this patient (if exists)
+        try {
+            Optional<MessageClassification> classificationOpt =
+                    classificationRepository.findByPatientId(patient.getId());
 
-        log.info("Found {} unique patients who sent messages", patients.size());
-
-        // 4. Xóa classification của từng bệnh nhân
-        for (User patient : patients) {
-            try {
-                Optional<MessageClassification> classificationOpt =
-                        classificationRepository.findByPatientId(patient.getId());
-
-                if (classificationOpt.isPresent()) {
-                    classificationRepository.delete(classificationOpt.get());
-                    log.info("Deleted classification for patient ID: {}", patient.getId());
-                } else {
-                    log.warn("No classification found for patient ID: {}", patient.getId());
-                }
-            } catch (Exception e) {
-                log.error("Error deleting classification for patient ID: {}", patient.getId(), e);
+            if (classificationOpt.isPresent()) {
+                classificationRepository.delete(classificationOpt.get());
+                log.info("Deleted classification for patient ID: {}", patient.getId());
+            } else {
+                log.warn("No classification found for patient ID: {}", patient.getId());
             }
+        } catch (Exception e) {
+            log.error("Error deleting classification for patient ID: {}", patient.getId(), e);
         }
 
-        // 5. Đánh dấu tất cả tin nhắn là đã đọc
+        // 5. Mark all messages as read
         unreadMessages.forEach(msg -> msg.setIsRead(true));
         messageRepository.saveAll(unreadMessages);
 
-        log.info("Marked {} messages as read for doctor: {}", unreadMessages.size(), username);
+        log.info("Marked {} messages as read between doctor: {} and patient: {}",
+                unreadMessages.size(), doctorUsername, patientUsername);
     }
 
 

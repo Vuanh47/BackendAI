@@ -30,7 +30,7 @@ public interface PatientMapper {
     @Mapping(source = "patient.medicalEncounter", target = "medicalEncounter")
     PatientResponse toPatientResponse(Patient patient, User user);
 
-    @Mapping(source = "id", target = "encounterId")
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "patient.id", target = "patientId")
     @Mapping(source = "patient.user.fullName", target = "patientName")
     MedicalEncounterResponse toMedicalEncounterResponse(MedicalEncounter medicalEncounter);

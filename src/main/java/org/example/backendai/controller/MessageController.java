@@ -209,10 +209,15 @@ public class MessageController {
     /**
      * Đánh dấu tất cả messages đã đọc
      */
-    @PutMapping("/api/messages/read-all/{username}")
-    @ResponseBody
-    public ResponseEntity<ApiResponse<Void>> markAllAsRead(@PathVariable String username) {
-        messageService.markAllAsRead(username);
+    @PutMapping("/api/messages/{doctorUsername}/{patientUsername}/read-all")
+    public ResponseEntity<ApiResponse<Void>> markAllAsRead(
+            @PathVariable String doctorUsername,
+            @PathVariable String patientUsername) {
+
+        log.info("Marking messages as read between doctor: {} and patient: {}",
+                doctorUsername, patientUsername);
+
+        messageService.markAllAsReadBetweenUsers(doctorUsername, patientUsername);
         return ApiResponseUtil.success(SuccessCode.ALL_MESSAGES_MARKED_READ);
     }
 

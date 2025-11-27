@@ -35,6 +35,8 @@ public class MedicalEncounterService {
     MedicalEncounterRepository repository;
     PatientRepository patientRepository;
     AIPredictionService aiPredictionService;
+    AIImageAnalysisService aiImageAnalysisService;
+
 
     @Transactional
     public MedicalEncounterResponse createEncounter(MedicalEncounterRequest request) {
@@ -89,6 +91,8 @@ public class MedicalEncounterService {
         return encounters.stream()
                 .map(mapper::toMedicalEncounterResponse).toList();
     }
+
+
     public MedicalEncounterResponse getByPatientId(Integer patientId) {
         patientRepository.findById(Long.valueOf(patientId))
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
@@ -101,6 +105,68 @@ public class MedicalEncounterService {
     }
 
 
+    /**
+     * Tạo Medical Encounter từ ảnh bệnh án
+     */
 
+    @Transactional
+    public MedicalEncounterResponse createEncounterFromImage(
+            Integer patientId,
+            MultipartFile imageFile) {
+
+        log.info("Creating encounter from image for patient ID: {}", patientId);
+
+        // 1. Find patient
+        Patient patient = patientRepository.findById(patientId.longValue())
+                .orElseThrow(() -> {
+                    log.error("Patient not found with ID: {}", patientId);
+                    return new AppException(ErrorCode.PATIENT_NOT_EXISTED);
+                });
+
+        // 2. Call AI API to analyze image
+        MedicalEncounterResponse aiResponse;
+        try {
+            aiResponse = aiImageAnalysisService.analyzeImage(imageFile);
+            log.info("AI analysis completed for patient: {}", aiResponse.getPatientName());
+        } catch (Exception e) {
+            log.error("Failed to analyze image", e);
+            throw new AppException(ErrorCode.AI_IMAGE_API_ERROR);
+        }
+
+        // 3. Validate AI response
+        if (aiResponse == null) {
+            log.error("AI returned null response");
+            throw new AppException(ErrorCode.AI_IMAGE_API_NO_RESPONSE);
+        }
+
+        // 4. Map AI response to MedicalEncounter entity (FIX: use correct mapper method)
+        MedicalEncounter encounter = mapper.toMedicalEncounterFromAIResponse(aiResponse);
+        encounter.setPatient(patient);
+
+        // 5. Call AI Prediction to predict severity level
+        try {
+            AIPredictionResponse prediction = aiPredictionService.predictSeverity(
+                    encounter.getAdmissionReason(),
+                    encounter.getPastMedicalHistory(),
+                    encounter.getFinalDiagnosis()
+            );
+
+            if (prediction != null && prediction.getLabel() != null) {
+                encounter.setSeverityLevel(prediction.getLabel());
+                log.info("AI predicted severity level: {} with confidence: {}",
+                        prediction.getLabel(), prediction.getConfidence());
+            }
+        } catch (Exception e) {
+            log.error("Failed to get AI prediction, continuing without severity level", e);
+            // Continue processing even if severity prediction fails
+        }
+
+        // 6. Save to database
+        MedicalEncounter savedEncounter = repository.save(encounter);
+        log.info("Medical encounter created successfully with ID: {}", savedEncounter.getId());
+
+        // 7. Return response
+        return mapper.toMedicalEncounterResponse(savedEncounter);
+    }
 }
 
