@@ -35,7 +35,7 @@ public enum ErrorCode {
 
     // ⭐ NEW ERROR
     INVALID_SEVERITY_LEVEL(3025, "Invalid severity level", HttpStatus.BAD_REQUEST),
-
+    NO_UNREAD_MESSAGES(4004, "Không có tin nhắn chưa đọc từ bệnh nhân này",  HttpStatus.BAD_REQUEST),
     // Permission errors (3041–3060)
     NOT_DOCTOR_ROLE(3041, "Only doctors can verify classifications", HttpStatus.BAD_REQUEST),
     NOT_MESSAGE_SENDER(3042, "You are not the sender of this message", HttpStatus.BAD_REQUEST),
@@ -51,7 +51,8 @@ public enum ErrorCode {
 
     CLASSIFICATION_NOT_EXISTED(4004, "No classification available for this patient", HttpStatus.NOT_FOUND),
 
-    MESSAGE_NOT_EXISTED(4005, "Message does not exist", HttpStatus.NOT_FOUND);
+    MESSAGE_NOT_EXISTED(4005, "Message does not exist", HttpStatus.NOT_FOUND),
+    MESSAGE_CLASSIFICATION_NOT_EXISTED(4005, "Message classification does not exist", HttpStatus.NOT_FOUND);
 
     int code;
     String message;

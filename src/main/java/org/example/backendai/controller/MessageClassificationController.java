@@ -57,10 +57,7 @@ public class MessageClassificationController {
     public ResponseEntity<MessageClassificationResponse> classifyMessage(
             @RequestBody MessageClassifyRequest request) {
 
-        MessageClassificationResponse data = service.classifyMessage(
-                request.getPatientId(),
-                request.getMessageContent()
-        );
+        MessageClassificationResponse data = service.classifyMessage(request.getPatientId());
 
         return ApiResponseUtil.success(data, SuccessCode.MESSAGE_CLASSIFIED);
     }

@@ -9,5 +9,5 @@ import lombok.*;
 @Builder
 public class MessageClassifyRequest {
     private Integer patientId;
-    private String messageContent;  // Frontend gửi tin nhắn gần nhất
+
 }

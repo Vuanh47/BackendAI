@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer> {
@@ -44,4 +45,24 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
             "m.sender = :user OR m.receiver = :user " +
             "ORDER BY m.roomId")
     List<String> findRoomsByUser(@Param("user") User user);
+
+
+    // Tìm tin nhắn chưa đọc của bệnh nhân (sender là bệnh nhân)
+    @Query("SELECT m FROM Message m WHERE " +
+            "m.sender.id = :patientId AND m.isRead = false " +
+            "ORDER BY m.sentAt ASC")
+    List<Message> findUnreadMessagesByPatientId(@Param("patientId") Long patientId);
+
+    Optional<Message> findByReceiverId(Integer receiverId);
+
+    @Query("SELECT m FROM Message m WHERE " +
+            "m.receiver.id = :receiverId AND m.isRead = false " +
+            "ORDER BY m.sentAt ASC")
+    Optional<Message> findFirstUnreadMessageByReceiverId(@Param("receiverId") Long receiverId);
+
+    // Hoặc nếu bạn muốn lấy tất cả tin nhắn chưa đọc từ bệnh nhân
+    @Query("SELECT m FROM Message m WHERE " +
+            "m.receiver.id = :receiverId AND m.isRead = false " +
+            "ORDER BY m.sentAt ASC")
+    List<Message> findUnreadMessagesByReceiverId(@Param("receiverId") Long receiverId);
 }

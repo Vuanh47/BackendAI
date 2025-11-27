@@ -8,9 +8,11 @@ import org.example.backendai.constant.ErrorCode;
 import org.example.backendai.dto.request.MessageRequest;
 import org.example.backendai.dto.response.MessageResponse;
 import org.example.backendai.entity.Message;
+import org.example.backendai.entity.MessageClassification;
 import org.example.backendai.entity.User;
 import org.example.backendai.exception.AppException;
 import org.example.backendai.mapper.MessageMapper;
+import org.example.backendai.repository.MessageClassificationRepository;
 import org.example.backendai.repository.MessageRepository;
 import org.example.backendai.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,9 +30,10 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MessageService {
 
-    MessageRepository messageRepository;
     UserRepository userRepository;
     MessageMapper messageMapper;
+    MessageRepository messageRepository;
+    MessageClassificationRepository classificationRepository;
 
     public MessageResponse sendMessage(MessageRequest request) {
         log.info("Sending message from {} to {} in room {}",
@@ -128,15 +132,55 @@ public class MessageService {
     public void markAllAsRead(String username) {
         log.info("Marking all messages as read for user: {}", username);
 
-        User user = userRepository.findByUsername(username)
+        // 1. Tìm bác sĩ
+        User userDoctor = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        List<Message> unreadMessages = messageRepository
-                .findByReceiverAndIsReadFalseOrderBySentAtDesc(user);
+        log.info("Doctor found: {}", userDoctor.getUsername());
 
+        // 2. Lấy tất cả tin nhắn chưa đọc mà bác sĩ là người nhận
+        List<Message> unreadMessages = messageRepository
+                .findByReceiverAndIsReadFalseOrderBySentAtDesc(userDoctor);
+
+        if (unreadMessages.isEmpty()) {
+            log.info("No unread messages for doctor: {}", username);
+            return;
+        }
+
+        log.info("Found {} unread messages", unreadMessages.size());
+
+        // 3. Lấy danh sách bệnh nhân đã gửi tin nhắn (loại bỏ trùng lặp)
+        List<User> patients = unreadMessages.stream()
+                .map(Message::getSender)
+                .distinct()
+                .toList();
+
+        log.info("Found {} unique patients who sent messages", patients.size());
+
+        // 4. Xóa classification của từng bệnh nhân
+        for (User patient : patients) {
+            try {
+                Optional<MessageClassification> classificationOpt =
+                        classificationRepository.findByPatientId(patient.getId());
+
+                if (classificationOpt.isPresent()) {
+                    classificationRepository.delete(classificationOpt.get());
+                    log.info("Deleted classification for patient ID: {}", patient.getId());
+                } else {
+                    log.warn("No classification found for patient ID: {}", patient.getId());
+                }
+            } catch (Exception e) {
+                log.error("Error deleting classification for patient ID: {}", patient.getId(), e);
+            }
+        }
+
+        // 5. Đánh dấu tất cả tin nhắn là đã đọc
         unreadMessages.forEach(msg -> msg.setIsRead(true));
         messageRepository.saveAll(unreadMessages);
+
+        log.info("Marked {} messages as read for doctor: {}", unreadMessages.size(), username);
     }
+
 
     public void deleteMessage(Integer messageId) {
         log.info("Deleting message: {}", messageId);

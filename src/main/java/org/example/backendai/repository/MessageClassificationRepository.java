@@ -12,4 +12,5 @@ public interface MessageClassificationRepository extends JpaRepository<MessageCl
 
     Optional<MessageClassification> findByPatientId(Integer patientId);
     boolean existsByPatientId(Integer patientId);
+
 }
