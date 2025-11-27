@@ -25,7 +25,7 @@ public class AIImageAnalysisService {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${ai.image.analysis.url:https://brooklyn-deeply-vacuum-eden.trycloudflare.com/analyze}")
+    @Value("${ai.image.analysis.url:https://son-riding-employ-attacks.trycloudflare.com/analyze}")
     private String aiImageAnalysisUrl;
 
     /**

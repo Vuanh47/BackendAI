@@ -48,7 +48,7 @@ public class MedicalEncounterController {
     @PostMapping(value = "/create-from-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalEncounterResponse> createEncounterFromImage(
             @RequestParam("patientId") Integer patientId,
-            @RequestParam("image") MultipartFile imageFile) {
+                @RequestParam("image") MultipartFile imageFile) {
 
         log.info("Received request to create encounter from image for patient: {}", patientId);
         log.info("Image file: {} ({} bytes)",

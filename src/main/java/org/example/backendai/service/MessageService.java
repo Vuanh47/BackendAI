@@ -196,11 +196,25 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public Long countUnreadMessages(String username) {
-        User user = userRepository.findByUsername(username)
+    public Long countUnreadMessagesBetweenUsers(String doctorUsername, String patientUsername) {
+        log.info("Counting unread messages between doctor: {} and patient: {}",
+                doctorUsername, patientUsername);
+
+        // 1. Find doctor
+        User doctor = userRepository.findByUsername(doctorUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        return messageRepository.countByReceiverAndIsReadFalse(user);
+        // 2. Find patient
+        User patient = userRepository.findByUsername(patientUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 3. Count unread messages where doctor is receiver and patient is sender
+        Long count = messageRepository.countByReceiverAndSenderAndIsReadFalse(doctor, patient);
+
+        log.info("Found {} unread messages between doctor: {} and patient: {}",
+                count, doctorUsername, patientUsername);
+
+        return count;
     }
 
     @Transactional(readOnly = true)

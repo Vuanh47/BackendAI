@@ -66,9 +66,11 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
             "ORDER BY m.sentAt ASC")
     List<Message> findUnreadMessagesByReceiverId(@Param("receiverId") Long receiverId);
 
-    // Get unread messages where doctor is receiver and patient is sender
-    List<Message> findByReceiverAndSenderAndIsReadFalseOrderBySentAtDesc(
-            User receiver,
-            User sender);
-    
+
+    // Count unread messages where doctor is receiver and patient is sender
+    Long countByReceiverAndSenderAndIsReadFalse(User receiver, User sender);
+
+    // Other existing methods...
+    List<Message> findByReceiverAndSenderAndIsReadFalseOrderBySentAtDesc(User receiver, User sender);
+
 }

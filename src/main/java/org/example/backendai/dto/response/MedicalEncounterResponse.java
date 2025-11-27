@@ -1,7 +1,9 @@
 package org.example.backendai.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -15,8 +17,11 @@ public class MedicalEncounterResponse {
     private Integer patientId; // ID của bệnh nhân
     private String patientName; // Tên bệnh nhân (nếu cần hiển thị)
 
-    private LocalDateTime admissionDate; // Ngày nhập viện
-    private LocalDateTime dischargeDate; // Ngày xuất viện
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate admissionDate; // Ngày nhập viện
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate dischargeDate; // Ngày xuất viện
 
     private String admissionReason; // Lý do nhập viện
     private String presentIllnessHistory; // Bệnh sử hiện tại
@@ -26,6 +31,6 @@ public class MedicalEncounterResponse {
     private String labRecommendations; // Đề xuất xét nghiệm
     private String treatmentPlan; // Kế hoạch điều trị
     private String aiSummary;
-    private String severityLevel;// <-- Khớp hoàn toàn
-    private String BHYT;
+    private String severityLevel; // <-- Mức độ nghiêm trọng
+    private String bhyt;
 }

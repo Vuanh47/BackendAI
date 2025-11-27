@@ -244,10 +244,12 @@ public class MessageController {
     /**
      * Đếm số messages chưa đọc
      */
-    @GetMapping("/api/messages/unread-count/{username}")
-    @ResponseBody
-    public ResponseEntity<Long> getUnreadCount(@PathVariable String username) {
-        Long count = messageService.countUnreadMessages(username);
+    @GetMapping("/api/messages/doctor/{doctorUsername}/patient/{patientUsername}/unread-count")
+    public ResponseEntity<Long> getUnreadCount(
+            @PathVariable String doctorUsername,
+            @PathVariable String patientUsername) {
+
+        Long count = messageService.countUnreadMessagesBetweenUsers(doctorUsername, patientUsername);
         return ApiResponseUtil.success(count, SuccessCode.GET_UNREAD_COUNT_SUCCESS);
     }
 

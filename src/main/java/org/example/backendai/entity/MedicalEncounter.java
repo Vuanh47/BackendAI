@@ -2,7 +2,7 @@ package org.example.backendai.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -21,8 +21,8 @@ public class MedicalEncounter {
     @JoinColumn(name = "PatientID", nullable = false)
     private Patient patient;
 
-    private LocalDateTime admissionDate;
-    private LocalDateTime dischargeDate;
+    private LocalDate admissionDate; // Thay từ LocalDateTime sang LocalDate
+    private LocalDate dischargeDate; // Thay từ LocalDateTime sang LocalDate
 
     @Lob
     private String admissionReason;
@@ -48,7 +48,7 @@ public class MedicalEncounter {
     @Lob
     private String aiSummary;
 
-    private String BHYT;
+    private String bhyt;
 
     @Column(name = "severity_level", length = 20)
     private String severityLevel;
