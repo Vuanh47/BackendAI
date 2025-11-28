@@ -136,6 +136,7 @@ public class PatientService {
      * Lấy danh sách bệnh nhân theo bác sĩ và mức độ tình trạng
      */
     public List<PatientResponse> getPatientsByDoctorAndSeverity(Integer doctorId, String severity) {
+        // Kiểm tra SeverityLevel hợp lệ
         SeverityLevel severityLevel;
         try {
             severityLevel = SeverityLevel.valueOf(severity.toUpperCase());
@@ -143,12 +144,24 @@ public class PatientService {
             throw new AppException(ErrorCode.INVALID_SEVERITY_LEVEL);
         }
 
-        // Query trực tiếp từ DB, không cần filter trong code
-        List<Patient> patients = repository.findPatientsByDoctorAndSeverity(doctorId, severityLevel);
-        log.info("Doctor ID: {}, Severity: {}, Total Patients: {}", doctorId, severity, patients.size());
+        // Lấy tất cả bệnh nhân của bác sĩ
+        List<Patient> patients = repository.findAllByManagingDoctor_Id(doctorId);
+        log.info("Doctor ID: " + doctorId);
+        log.info("Severity: " + severity);
+        log.info("Total Patients: " + patients.size());
 
+        // Lọc bệnh nhân theo mức độ tình trạng
         return patients.stream()
-                .map(patient -> mapper.toPatientResponse(patient, patient.getUser()))
+                .filter(patient -> {
+                    Optional<MessageClassification> classification = messageClassificationRepository.findByPatientId(patient.getId());
+                    return classification.isPresent() && classification.get().getAIClassification() == severityLevel;
+                })
+                .map(patient -> {
+                    PatientResponse response = mapper.toPatientResponse(patient, patient.getUser());
+                    Optional<MessageClassification> classification = messageClassificationRepository.findByPatientId(patient.getId());
+                    mapper.setSeverityLevelToResponse(response, classification.orElse(null));
+                    return response;
+                })
                 .toList();
     }
 }

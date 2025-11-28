@@ -11,8 +11,8 @@ public class AIClient {
     public static void main(String[] args) {
 
         // ✅ 1. Khai báo đường dẫn ảnh và URL API
-        String url = "https://son-riding-employ-attacks.trycloudflare.com/analyze";
-        String imagePath = "C:\\Users\\THINKPAD\\Downloads\\z7197808984395_2101014ac95ae039a1c348a440165eb8.jpg";
+        String url = "https://highlight-kidney-edt-pattern.trycloudflare.com/analyze";
+        String imagePath =  "D:\\Workspace\\AIForLife\\SieuNhanAI\\ho so benh an.jpg";
 
         // ✅ 2. Kiểm tra file tồn tại
         File file = new File(imagePath);
