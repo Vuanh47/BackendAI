@@ -39,11 +39,5 @@ public class MessageClassification {
 
     private String confidence;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private ClassificationStatus status = ClassificationStatus.ACTIVE;
-
-
     private LocalDateTime reviewedAt;
 }

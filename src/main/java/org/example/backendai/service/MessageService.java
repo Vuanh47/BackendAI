@@ -134,12 +134,19 @@ public class MessageService {
         log.info("Marking all messages as read between doctor: {} and patient: {}",
                 doctorUsername, patientUsername);
 
+        // 1. Find doctor
         User doctor = userRepository.findByUsername(doctorUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        log.info("Doctor found: {}", doctor.getUsername());
+
+        // 2. Find patient
         User patient = userRepository.findByUsername(patientUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        log.info("Patient found: {}", patient.getUsername());
+
+        // 3. Get unread messages between doctor (receiver) and patient (sender)
         List<Message> unreadMessages = messageRepository
                 .findByReceiverAndSenderAndIsReadFalseOrderBySentAtDesc(doctor, patient);
 
@@ -151,31 +158,29 @@ public class MessageService {
 
         log.info("Found {} unread messages between doctor and patient", unreadMessages.size());
 
-        // Thay vì xóa, chỉ cập nhật status thành REVIEWED
+        // 4. Delete classification for this patient (if exists)
         try {
             Optional<MessageClassification> classificationOpt =
-                    classificationRepository.findByPatientIdAndDoctorId(
-                            patient.getId().intValue(),
-                            doctor.getId().intValue());
+                    classificationRepository.findByPatientId(patient.getId());
 
             if (classificationOpt.isPresent()) {
-                MessageClassification classification = classificationOpt.get();
-                classification.setStatus(ClassificationStatus.REVIEWED);
-                classification.setReviewedAt(LocalDateTime.now());
-                classificationRepository.save(classification);
-                log.info("Updated classification status to REVIEWED for patient ID: {}", patient.getId());
+                classificationRepository.delete(classificationOpt.get());
+                log.info("Deleted classification for patient ID: {}", patient.getId());
+            } else {
+                log.warn("No classification found for patient ID: {}", patient.getId());
             }
         } catch (Exception e) {
-            log.error("Error updating classification for patient ID: {}", patient.getId(), e);
+            log.error("Error deleting classification for patient ID: {}", patient.getId(), e);
         }
 
-        // Mark all messages as read
+        // 5. Mark all messages as read
         unreadMessages.forEach(msg -> msg.setIsRead(true));
         messageRepository.saveAll(unreadMessages);
 
         log.info("Marked {} messages as read between doctor: {} and patient: {}",
                 unreadMessages.size(), doctorUsername, patientUsername);
     }
+
 
     public void deleteMessage(Integer messageId) {
         log.info("Deleting message: {}", messageId);
