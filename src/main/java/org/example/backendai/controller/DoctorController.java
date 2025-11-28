@@ -48,10 +48,10 @@ public class DoctorController {
     }
 
     @GetMapping("/same-department/patient/{patientId}")
-    public ResponseEntity<List<DoctorResponse>> getDoctorsInSameDepartment(
+    public ResponseEntity<DoctorResponse> getDoctorsInSameDepartment(
             @PathVariable Integer patientId) {
 
-        List<DoctorResponse> data = service.getDoctorsInSameDepartmentByPatientId(patientId);
+        DoctorResponse data = service.getDoctorsInSameDepartmentByPatientId(patientId);
         return ApiResponseUtil.success(data, SuccessCode.DOCTOR_LISTED);
     }
 

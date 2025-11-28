@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface MessageClassificationRepository extends JpaRepository<MessageClassification, Integer> {
 
     Optional<MessageClassification> findByPatientId(Integer patientId);
+
+    Optional<MessageClassification> findFirstByPatientIdOrderByReviewedAtDesc(Integer patientId);
     boolean existsByPatientId(Integer patientId);
 
     @Query("SELECT mc FROM MessageClassification mc WHERE " +

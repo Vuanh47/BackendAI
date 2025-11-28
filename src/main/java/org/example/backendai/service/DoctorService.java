@@ -88,7 +88,7 @@ public class DoctorService {
         return mapper.toDoctorResponse(existingDoctor, existingUser);
     }
 
-    public List<DoctorResponse> getDoctorsInSameDepartmentByPatientId(Integer patientId) {
+    public DoctorResponse getDoctorsInSameDepartmentByPatientId(Integer patientId) {
         // 1. Tìm bệnh nhân theo ID
         Patient patient = patientRepository.findById(Long.valueOf(patientId))
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
@@ -99,19 +99,7 @@ public class DoctorService {
             throw new AppException(ErrorCode.PATIENT_HAS_NO_MANAGING_DOCTOR);
         }
 
-        // 3. Lấy department của bác sĩ quản lý
-        Department department = managingDoctor.getDepartment();
-
-        // 4. Tìm tất cả bác sĩ cùng khoa (có JOIN FETCH user để tránh N+1)
-        List<Doctor> doctorsInSameDept = doctorRepository.findByDepartmentWithUser(department);
-
-        if (doctorsInSameDept.isEmpty()) {
-            throw new AppException(ErrorCode.NO_DOCTORS_IN_DEPARTMENT);
-        }
-
         // 5. Map sang Response
-        return doctorsInSameDept.stream()
-                .map(doctor -> mapper.toDoctorResponse(doctor, doctor.getUser()))
-                .toList();
+        return mapper.toDoctorResponse(managingDoctor, managingDoctor.getUser());
     }
 }
