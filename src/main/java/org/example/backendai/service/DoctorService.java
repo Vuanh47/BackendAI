@@ -94,7 +94,7 @@ public class DoctorService {
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
 
         // 2. Lấy bác sĩ quản lý
-        Doctor managingDoctor = patient.getManagingDoctor();
+        List<Doctor> managingDoctor = doctorRepository.findAllByPatientId(patient.getId());
         if (managingDoctor == null) {
             throw new AppException(ErrorCode.PATIENT_HAS_NO_MANAGING_DOCTOR);
         }
