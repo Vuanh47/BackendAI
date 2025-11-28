@@ -88,7 +88,7 @@ public class DoctorService {
         return mapper.toDoctorResponse(existingDoctor, existingUser);
     }
 
-    public List<DoctorResponse> getDoctorsInSameDepartmentByPatientId(Integer patientId) {
+    public DoctorResponse getDoctorsInSameDepartmentByPatientId(Integer patientId) {
         // 1. Tìm bệnh nhân theo ID
         Patient patient = patientRepository.findById(Long.valueOf(patientId))
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
@@ -99,6 +99,7 @@ public class DoctorService {
             throw new AppException(ErrorCode.PATIENT_HAS_NO_MANAGING_DOCTOR);
         }
 
-        return  managingDoctor.stream().map(mapper::toDoctorResponse).toList();
+        // 5. Map sang Response
+        return mapper.toDoctorResponse(managingDoctor, managingDoctor.getUser());
     }
 }

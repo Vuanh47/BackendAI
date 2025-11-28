@@ -55,5 +55,12 @@ public class DoctorController {
         return ApiResponseUtil.success(data, SuccessCode.DOCTOR_UPDATED);
     }
 
+    @GetMapping("/same-department/patient/{patientId}")
+    public ResponseEntity<DoctorResponse> getDoctorsInSameDepartment(
+            @PathVariable Integer patientId) {
+
+        DoctorResponse data = service.getDoctorsInSameDepartmentByPatientId(patientId);
+        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_LISTED);
+    }
 
 }
