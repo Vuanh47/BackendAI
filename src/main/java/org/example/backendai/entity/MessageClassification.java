@@ -40,4 +40,5 @@ public class MessageClassification {
     private String confidence;
 
     private LocalDateTime reviewedAt;
+
 }

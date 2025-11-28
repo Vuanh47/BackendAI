@@ -19,6 +19,14 @@ import java.util.List;
 public class DoctorController {
     private final DoctorService service;
 
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<DoctorResponse>> getDoctorsInSameDepartment(
+            @PathVariable Integer patientId) {
+
+        List<DoctorResponse> data = service.getDoctorsInSameDepartmentByPatientId(patientId);
+        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_LISTED);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<DoctorResponse> register(@RequestBody DoctorRegisterRequest request) {
         DoctorResponse data = service.registerDoctor(request);
@@ -47,12 +55,5 @@ public class DoctorController {
         return ApiResponseUtil.success(data, SuccessCode.DOCTOR_UPDATED);
     }
 
-    @GetMapping("/same-department/patient/{patientId}")
-    public ResponseEntity<List<DoctorResponse>> getDoctorsInSameDepartment(
-            @PathVariable Integer patientId) {
-
-        List<DoctorResponse> data = service.getDoctorsInSameDepartmentByPatientId(patientId);
-        return ApiResponseUtil.success(data, SuccessCode.DOCTOR_LISTED);
-    }
 
 }

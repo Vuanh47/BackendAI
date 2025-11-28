@@ -18,7 +18,7 @@ public interface DoctorMapper {
     @Mappings({
             // BẮT BUỘC: Chỉ định nguồn cho thuộc tính "id" của DoctorResponse
             @Mapping(source = "doctor.user.id", target = "id"),
-
+            @Mapping(source = "doctor.user.username", target = "username"),
             // Ánh xạ các thuộc tính từ User sang DoctorResponse
             @Mapping(source = "doctor.user.fullName", target = "fullName"),
             @Mapping(source = "doctor.user.phone", target = "phone"),

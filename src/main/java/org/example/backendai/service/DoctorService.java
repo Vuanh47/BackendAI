@@ -94,24 +94,11 @@ public class DoctorService {
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_EXISTED));
 
         // 2. Lấy bác sĩ quản lý
-        Doctor managingDoctor = patient.getManagingDoctor();
+        List<Doctor> managingDoctor = doctorRepository.findAllByPatientId(patient.getId());
         if (managingDoctor == null) {
             throw new AppException(ErrorCode.PATIENT_HAS_NO_MANAGING_DOCTOR);
         }
 
-        // 3. Lấy department của bác sĩ quản lý
-        Department department = managingDoctor.getDepartment();
-
-        // 4. Tìm tất cả bác sĩ cùng khoa (có JOIN FETCH user để tránh N+1)
-        List<Doctor> doctorsInSameDept = doctorRepository.findByDepartmentWithUser(department);
-
-        if (doctorsInSameDept.isEmpty()) {
-            throw new AppException(ErrorCode.NO_DOCTORS_IN_DEPARTMENT);
-        }
-
-        // 5. Map sang Response
-        return doctorsInSameDept.stream()
-                .map(doctor -> mapper.toDoctorResponse(doctor, doctor.getUser()))
-                .toList();
+        return  managingDoctor.stream().map(mapper::toDoctorResponse).toList();
     }
 }
