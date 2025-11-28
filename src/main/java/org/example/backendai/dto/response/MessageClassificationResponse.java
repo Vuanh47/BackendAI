@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class MessageClassificationResponse {
     private Integer id;
     private Integer patientId;
+    private Integer doctorId;
     private SeverityLevel aiClassification;
     private String aiClassificationDisplay;
     private String confidence;

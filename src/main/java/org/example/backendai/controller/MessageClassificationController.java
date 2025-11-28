@@ -56,9 +56,9 @@ public class MessageClassificationController {
     @PostMapping("/classify")
     public ResponseEntity<MessageClassificationResponse> classifyMessage(
             @RequestBody MessageClassifyRequest request) {
-
-        MessageClassificationResponse data = service.classifyMessage(request.getPatientId());
-
+        MessageClassificationResponse data = service.classifyMessage(
+                request.getPatientId(),
+                request.getDoctorId());
         return ApiResponseUtil.success(data, SuccessCode.MESSAGE_CLASSIFIED);
     }
 }

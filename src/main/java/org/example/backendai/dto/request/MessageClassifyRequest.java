@@ -9,5 +9,5 @@ import lombok.*;
 @Builder
 public class MessageClassifyRequest {
     private Integer patientId;
-
+    private Integer doctorId;
 }

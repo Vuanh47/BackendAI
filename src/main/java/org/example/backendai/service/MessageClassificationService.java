@@ -9,15 +9,10 @@ import org.example.backendai.constant.SeverityLevel;
 import org.example.backendai.dto.request.AIFinalRequest;
 import org.example.backendai.dto.response.AIFinalResponse;
 import org.example.backendai.dto.response.MessageClassificationResponse;
-import org.example.backendai.entity.MedicalEncounter;
-import org.example.backendai.entity.Message;
-import org.example.backendai.entity.MessageClassification;
-import org.example.backendai.entity.Patient;
+import org.example.backendai.entity.*;
 import org.example.backendai.exception.AppException;
 import org.example.backendai.mapper.MessageClassificationMapper;
-import org.example.backendai.repository.MessageClassificationRepository;
-import org.example.backendai.repository.MessageRepository;
-import org.example.backendai.repository.PatientRepository;
+import org.example.backendai.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,12 +34,13 @@ public class MessageClassificationService {
     MessageClassificationMapper messageClassificationMapper;
     MessageRepository messageRepository;  // THÊM MỚI
     RestTemplate restTemplate;
-
+    UserRepository  userRepository;
+    DoctorRepository doctorRepository;
 
     String aiApiUrl = "http://127.0.0.1:8000/predict_final";
 
-    public MessageClassificationResponse classifyMessage(Integer patientId) {
-        log.info("Bắt đầu phân loại tin nhắn - PatientID: {}", patientId);
+    public MessageClassificationResponse classifyMessage(Integer patientId, Integer doctorId) {
+        log.info("Bắt đầu phân loại tin nhắn - PatientID: {}, DoctorID: {}", patientId, doctorId);
 
         // 1. Tìm Patient
         Patient patient = patientRepository.findById(Long.valueOf(patientId))
@@ -53,22 +49,31 @@ public class MessageClassificationService {
                     return new AppException(ErrorCode.PATIENT_NOT_EXISTED);
                 });
 
-        // 2. Lấy Medical Encounter từ Patient (quan hệ 1-1)
+        // 2. Kiểm tra Doctor tồn tại
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> {
+                    log.error("Không tìm thấy bác sĩ với ID: {}", doctorId);
+                    return new AppException(ErrorCode.DOCTOR_NOT_EXISTED);
+                });
+
+        // 3. Lấy Medical Encounter từ Patient (quan hệ 1-1)
         MedicalEncounter medicalEncounter = patient.getMedicalEncounter();
         if (medicalEncounter == null) {
             log.error("Không tìm thấy hồ sơ bệnh án cho bệnh nhân ID: {}", patientId);
             throw new AppException(ErrorCode.MEDICAL_ENCOUNTER_NOT_EXISTED);
         }
 
-        // 3. Lấy tất cả tin nhắn chưa đọc của bệnh nhân
+        // 4. Lấy tất cả tin nhắn chưa đọc giữa bệnh nhân và bác sĩ cụ thể
         List<Message> unreadMessages = messageRepository
-                .findUnreadMessagesByPatientId(Long.valueOf(patientId));
+                .findUnreadMessagesByPatientAndDoctorId(
+                        Long.valueOf(patientId),
+                        Long.valueOf(doctorId));
 
         if (unreadMessages.isEmpty()) {
-            log.warn("Không có tin nhắn chưa đọc cho bệnh nhân ID: {}", patientId);
+            log.warn("Không có tin nhắn chưa đọc giữa bệnh nhân ID: {} và bác sĩ ID: {}",
+                    patientId, doctorId);
             throw new AppException(ErrorCode.NO_UNREAD_MESSAGES);
         }
-
         // 4. Nối các content lại thành chuỗi, ngăn cách bằng dấu chấm
         String messageContent = unreadMessages.stream()
                 .map(Message::getContent)
@@ -122,7 +127,7 @@ public class MessageClassificationService {
 
         // 8. Kiểm tra xem bệnh nhân đã có classification chưa
         MessageClassification classification = repository
-                .findByPatientId(patientId)
+                .findByPatientIdAndDoctorId(patientId, doctorId)
                 .orElse(null);
 
         boolean isNewRecord = (classification == null);
@@ -132,9 +137,10 @@ public class MessageClassificationService {
             log.info("Tạo mới MessageClassification cho bệnh nhân ID: {}", patientId);
             classification = MessageClassification.builder()
                     .patient(patient)
+                    .doctor(doctor)
                     .AIClassification(severityLevel)
                     .confidence(String.format("%.4f", aiResponse.getConfidence()))
-                    .verifiedAt(LocalDateTime.now())
+                    .reviewedAt(LocalDateTime.now())
                     .build();
         } else {
             // Cập nhật
@@ -144,7 +150,7 @@ public class MessageClassificationService {
                     severityLevel.getDisplayName());
             classification.setAIClassification(severityLevel);
             classification.setConfidence(String.format("%.4f", aiResponse.getConfidence()));
-            classification.setVerifiedAt(LocalDateTime.now());
+            classification.setReviewedAt(LocalDateTime.now());
         }
 
         MessageClassification savedClassification = repository.save(classification);

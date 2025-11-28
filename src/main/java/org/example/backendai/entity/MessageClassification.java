@@ -2,6 +2,7 @@ package org.example.backendai.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.backendai.constant.ClassificationStatus;
 import org.example.backendai.constant.SeverityLevel;
 
 import java.time.LocalDateTime;
@@ -13,15 +14,24 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString(onlyExplicitlyIncluded = true)
+@Table(name = "message_classification",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"patient_id", "doctor_id"},
+                name = "uk_patient_doctor"
+        ))
 public class MessageClassification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PatientID", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ai_classification")
@@ -29,5 +39,11 @@ public class MessageClassification {
 
     private String confidence;
 
-    private LocalDateTime verifiedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ClassificationStatus status = ClassificationStatus.ACTIVE;
+
+
+    private LocalDateTime reviewedAt;
 }

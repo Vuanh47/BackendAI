@@ -47,11 +47,13 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     List<String> findRoomsByUser(@Param("user") User user);
 
 
-    // Tìm tin nhắn chưa đọc của bệnh nhân (sender là bệnh nhân)
     @Query("SELECT m FROM Message m WHERE " +
-            "m.sender.id = :patientId AND m.isRead = false " +
+            "m.sender.id = :patientId AND m.receiver.id = :doctorId AND m.isRead = false " +
             "ORDER BY m.sentAt ASC")
-    List<Message> findUnreadMessagesByPatientId(@Param("patientId") Long patientId);
+    List<Message> findUnreadMessagesByPatientAndDoctorId(
+            @Param("patientId") Long patientId,
+            @Param("doctorId") Long doctorId);
+
 
     Optional<Message> findByReceiverId(Integer receiverId);
 
